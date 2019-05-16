@@ -1,0 +1,52 @@
+{
+  "Actions": [
+    {
+      "Icon": "Images/iconplay",
+      "Name": "Soundpad Play Sound",
+      "States": [
+        {
+          "Image": "Images/sound",
+          "TitleAlignment": "bottom",
+          "FontSize": "9"
+        }
+      ],
+      "SupportedInMultiActions": true,
+      "Tooltip": "Play a sound from Soundpad.",
+      "UUID": "com.barraider.soundpadplay",
+      "PropertyInspectorPath": "PropertyInspector/Soundpad/SoundpadPlay.html"
+    },
+    {
+      "Icon": "Images/iconstop",
+      "Name": "Soundpad Stop",
+      "States": [
+        {
+          "Image": "Images/stop",
+          "TitleAlignment": "bottom",
+          "FontSize": "10"
+        }
+      ],
+      "SupportedInMultiActions": true,
+      "Tooltip": "Allows to stop the current playing sound in Soundpad.",
+      "UUID": "com.barraider.soundpadstop"
+    }
+  ],
+  "Author": "BarRaider",
+  "Description": "Soundpad integration for your Stream Deck. Play sounds directly from Soundpad, without needing to configure hotkeys",
+  "Name": "Soundpad Integration",
+  "Icon": "Images/pluginIcon",
+  "URL": "https://barraider.github.io/",
+  "Version": "1.0",
+  "CodePath": "com.barraider.soundpad",
+  "Category": "BarRaider",
+  "CategoryIcon": "Images/categoryIcon",
+  "OS": [
+    {
+      "Platform": "windows",
+      "MinimumVersion": "10"
+    }
+  ],
+  "SDKVersion": 2,
+  "Software": {
+    "MinimumVersion": "4.2"
+  }
+}

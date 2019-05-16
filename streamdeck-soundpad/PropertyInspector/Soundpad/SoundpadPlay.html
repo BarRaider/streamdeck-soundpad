@@ -1,0 +1,37 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name=viewport content="width=device-width,initial-scale=1,maximum-scale=1,minimum-scale=1,user-scalable=no,minimal-ui,viewport-fit=cover">
+    <meta name=apple-mobile-web-app-capable content=yes>
+    <meta name=apple-mobile-web-app-status-bar-style content=black>
+    <title>BarRaider's Soundpad Integration</title>
+    <link rel="stylesheet" href="../sdpi.css">
+    <script src="../soundpadCommon.js"></script>
+    <script src="../soundpadPlay.js"></script>
+</head>
+<body>
+    <div class="sdpi-wrapper">
+        <details class="message">
+            <summary>For feedback/suggestions contact me at <span class="linkspan" onclick="openWebsite()">https://BarRaider.github.io</span></summary>
+        </details>
+        <div id="sdWrapper">
+            <div class="sdpi-item" id="dvSounds">
+                <div class="sdpi-item-label">Sound</div>
+                <select class="sdpi-item-value select sdProperty" id="sounds" oninput="setSettings()"></select>
+            </div>
+        </div>
+        <div type="checkbox" class="sdpi-item" id="dvShowSoundTitle">
+            <div class="sdpi-item-label">Show Title</div>
+            <div class="sdpi-item-value">
+                <input id="showSoundTitle" class="sdProperty sdCheckbox" type="checkbox" value="" oninput="setSettings()">
+                <label for="showSoundTitle" class="sdpi-item-label"><span></span>Show sound's title on button</label>
+            </div>
+        </div>
+        <div class="sdpi-item" id="dvRefresh">
+            <div class="sdpi-item-label">Refresh Sounds</div>
+            <button class="sdpi-item-value max20" onclick="refreshSounds()">Refresh</button>
+        </div>
+    </div>
+</body>
+</html>
