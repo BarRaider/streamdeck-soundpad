@@ -80,6 +80,7 @@
     <Compile Include="SoundpadManager.cs" />
     <Compile Include="SoundpadPlayPlugin.cs" />
     <Compile Include="SoundpadSound.cs" />
+    <Compile Include="SoundpadPlayRandomPlugin.cs" />
     <Compile Include="SoundpadStopPlugin.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -106,6 +107,12 @@
     <Content Include="Images\iconplay.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Content Include="Images\iconplayrand%402x.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\iconplayrand.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="Images\iconstop%402x.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
@@ -122,6 +129,12 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="Images\sound.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\soundrand%402x.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\soundrand.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="Images\stop%402x.png">

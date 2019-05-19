@@ -16,6 +16,20 @@
       "PropertyInspectorPath": "PropertyInspector/Soundpad/SoundpadPlay.html"
     },
     {
+      "Icon": "Images/iconplayrand",
+      "Name": "Soundpad Play Random Sound",
+      "States": [
+        {
+          "Image": "Images/soundrand",
+          "TitleAlignment": "bottom",
+          "FontSize": "9"
+        }
+      ],
+      "SupportedInMultiActions": true,
+      "Tooltip": "Play a sound from Soundpad.",
+      "UUID": "com.barraider.soundpadplayrand"
+    },
+    {
       "Icon": "Images/iconstop",
       "Name": "Soundpad Stop",
       "States": [
@@ -35,7 +49,7 @@
   "Name": "Soundpad Integration",
   "Icon": "Images/pluginIcon",
   "URL": "https://barraider.github.io/",
-  "Version": "1.0",
+  "Version": "1.1",
   "CodePath": "com.barraider.soundpad",
   "Category": "BarRaider",
   "CategoryIcon": "Images/categoryIcon",

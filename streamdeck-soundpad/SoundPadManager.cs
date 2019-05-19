@@ -17,6 +17,7 @@ namespace Soundpad
         private SoundpadConnector.Soundpad soundpad;
         private Dictionary<string, int> dicSounds;
         private bool isProbablyConnected = false;
+        private Random rand = new Random();
 
         #endregion
 
@@ -75,7 +76,7 @@ namespace Soundpad
 
         public bool PlaySound(string soundTitle)
         {
-            
+            Logger.Instance.LogMessage(TracingLevel.INFO, $"Play Random Sound Called: {soundTitle}");
             if (!IsConnected)
             {
                 Connect();
@@ -95,8 +96,30 @@ namespace Soundpad
             }
         }
 
+        public bool PlayRandomSound()
+        {
+            Logger.Instance.LogMessage(TracingLevel.INFO, $"Play Random Sound Called");
+            if (!IsConnected)
+            {
+                Connect();
+                Logger.Instance.LogMessage(TracingLevel.WARN, $"Could not play random sound - Soundpad not connected");
+                return false;
+            }
+
+            var sounds = GetAllSounds();
+            if (sounds.Count > 0)
+            {
+                soundpad.PlaySound(rand.Next(sounds.Count));
+                return true;
+            }
+
+            Logger.Instance.LogMessage(TracingLevel.WARN, $"Could not play random sound - No sounds exists");
+            return false;
+        }
+
         public void Stop()
         {
+            Logger.Instance.LogMessage(TracingLevel.INFO, $"Stop Sound Called");
             soundpad.StopSound();
         }
 
@@ -111,7 +134,7 @@ namespace Soundpad
                 }
             }
 
-            return sounds;
+            return sounds.OrderBy(x => x.SoundName).ToList();
         }
 
         public async void CacheAllSounds()
