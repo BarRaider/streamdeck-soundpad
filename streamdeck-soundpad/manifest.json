@@ -49,9 +49,9 @@
   "Name": "Soundpad Integration",
   "Icon": "Images/pluginIcon",
   "URL": "https://barraider.github.io/",
-  "Version": "1.1",
+  "Version": "1.2",
   "CodePath": "com.barraider.soundpad",
-  "Category": "BarRaider",
+  "Category": "Soundpad [BarRaider]",
   "CategoryIcon": "Images/categoryIcon",
   "OS": [
     {
