@@ -4,9 +4,9 @@ Play sounds directly from Soundpad, without needing to configure hotkeys.
 
 **Author's website and contact information:** [https://barraider.github.io](https://barraider.github.io)
 
-New in version 1.1:
-* Sounds are now sorted alphabetically in Play action
-* New *Play Random Sound* action - Chooses a random sound from you Soundpad and plays it. Do you feel lucky?
+## New in version 1.3
+* Support playing sounds based on the index in Soundpad UI
+* RecordPTT action - Utilizes Soundpad's internal recording function and allows recording sounds into Soundpad
 
 ### Download
 
