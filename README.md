@@ -10,7 +10,7 @@ Play sounds directly from Soundpad, without needing to configure hotkeys.
 
 ### Download
 
-* [Download plugin]()
+* [Download plugin](https://github.com/BarRaider/streamdeck-soundpad/releases/download/v1.3/com.barraider.soundpad.streamDeckPlugin)
 
 ## I found a bug, who do I contact?
 For support please contact the developer. Contact information is available at https://barraider.github.io
