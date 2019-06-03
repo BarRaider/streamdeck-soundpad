@@ -5,12 +5,12 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Soundpad
+namespace Soundpad.Actions
 {
-    [PluginActionId("com.barraider.soundpadplayrand")]
-    public class SoundpadPlayRandomPlugin : PluginBase
+    [PluginActionId("com.barraider.soundpadstop")]
+    public class SoundpadStopAction : PluginBase
     {
-        public SoundpadPlayRandomPlugin(SDConnection connection, InitialPayload payload) : base(connection, payload)
+        public SoundpadStopAction(SDConnection connection, InitialPayload payload) : base(connection, payload)
         {
             SoundpadManager.Instance.Connect();
         }
@@ -19,7 +19,7 @@ namespace Soundpad
 
         public override void KeyPressed(KeyPayload payload)
         {
-            SoundpadManager.Instance.PlayRandomSound();
+            SoundpadManager.Instance.Stop();
         }
 
         public override void KeyReleased(KeyPayload payload) { }

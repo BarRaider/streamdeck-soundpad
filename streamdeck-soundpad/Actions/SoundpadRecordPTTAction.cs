@@ -5,12 +5,12 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Soundpad
+namespace Soundpad.Actions
 {
-    [PluginActionId("com.barraider.soundpadstop")]
-    public class SoundpadStopPlugin : PluginBase
+    [PluginActionId("com.barraider.soundpadrecordptt")]
+    public class SoundpadRecordPTTAction : PluginBase
     {
-        public SoundpadStopPlugin(SDConnection connection, InitialPayload payload) : base(connection, payload)
+        public SoundpadRecordPTTAction(SDConnection connection, InitialPayload payload) : base(connection, payload)
         {
             SoundpadManager.Instance.Connect();
         }
@@ -19,10 +19,13 @@ namespace Soundpad
 
         public override void KeyPressed(KeyPayload payload)
         {
-            SoundpadManager.Instance.Stop();
+            SoundpadManager.Instance.RecordStart();
         }
 
-        public override void KeyReleased(KeyPayload payload) { }
+        public override void KeyReleased(KeyPayload payload)
+        {
+            SoundpadManager.Instance.RecordStop();
+        }
 
         public override void OnTick()
         {

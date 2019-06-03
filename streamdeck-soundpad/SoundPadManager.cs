@@ -48,6 +48,7 @@ namespace Soundpad
             soundpad = new SoundpadConnector.Soundpad() { AutoReconnect = true};
             soundpad.Connected += Soundpad_Connected;
             soundpad.Disconnected += Soundpad_Disconnected;
+            Logger.Instance.LogMessage(TracingLevel.INFO, "Attempting to connect to Soundpad");
             soundpad.ConnectAsync();
 
         }
@@ -68,15 +69,31 @@ namespace Soundpad
 
         public void Connect()
         {
+            Logger.Instance.LogMessage(TracingLevel.INFO, "Connect request received");
             if (!IsConnected)
             {
+                Logger.Instance.LogMessage(TracingLevel.INFO, "Attempting to connect to Soundpad");
                 soundpad.ConnectAsync();
             }
         }
 
+        public bool PlaySound(int soundIndex)
+        {
+            Logger.Instance.LogMessage(TracingLevel.INFO, $"Play Sound in Index: {soundIndex}");
+            if (!IsConnected)
+            {
+                Connect();
+                Logger.Instance.LogMessage(TracingLevel.WARN, $"Could not play sound - Soundpad not connected");
+                return false;
+            }
+
+            soundpad.PlaySound(soundIndex);
+            return true;
+        }
+
         public bool PlaySound(string soundTitle)
         {
-            Logger.Instance.LogMessage(TracingLevel.INFO, $"Play Random Sound Called: {soundTitle}");
+            Logger.Instance.LogMessage(TracingLevel.INFO, $"Play Sound: {soundTitle}");
             if (!IsConnected)
             {
                 Connect();
@@ -121,6 +138,18 @@ namespace Soundpad
         {
             Logger.Instance.LogMessage(TracingLevel.INFO, $"Stop Sound Called");
             soundpad.StopSound();
+        }
+
+        public void RecordStart()
+        {
+            Logger.Instance.LogMessage(TracingLevel.INFO, $"RecordStart Called");
+            soundpad.StartRecording();
+        }
+
+        public void RecordStop()
+        {
+            Logger.Instance.LogMessage(TracingLevel.INFO, $"RecordStop Called");
+            soundpad.StopRecording();
         }
 
         public List<SoundpadSound> GetAllSounds()

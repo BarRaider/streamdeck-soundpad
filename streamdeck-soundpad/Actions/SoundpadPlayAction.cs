@@ -7,10 +7,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Soundpad
+namespace Soundpad.Actions
 {
     [PluginActionId("com.barraider.soundpadplay")]
-    public class SoundpadPlayPlugin : PluginBase
+    public class SoundpadPlayAction : PluginBase
     {
         private class PluginSettings
         {
@@ -19,6 +19,7 @@ namespace Soundpad
                 PluginSettings instance = new PluginSettings();
                 instance.SoundTitle = String.Empty;
                 instance.ShowSoundTitle = false;
+                instance.SoundIndex = String.Empty;
                 instance.Sounds = null;
                 return instance;
             }
@@ -31,6 +32,9 @@ namespace Soundpad
 
             [JsonProperty(PropertyName = "showSoundTitle")]
             public bool ShowSoundTitle { get; set; }
+
+            [JsonProperty(PropertyName = "soundIndex")]
+            public string SoundIndex { get; set; }            
         }
 
         #region Private Members
@@ -41,7 +45,7 @@ namespace Soundpad
 
         #region Public Methods
 
-        public SoundpadPlayPlugin(SDConnection connection, InitialPayload payload) : base(connection, payload)
+        public SoundpadPlayAction(SDConnection connection, InitialPayload payload) : base(connection, payload)
         {
             if (payload.Settings == null || payload.Settings.Count == 0)
             {
@@ -67,10 +71,34 @@ namespace Soundpad
 
         public override void KeyPressed(KeyPayload payload)
         {
-            if (!String.IsNullOrEmpty(settings.SoundTitle) && SoundpadManager.Instance.IsConnected)
+            SaveSettings();
+            if (SoundpadManager.Instance.IsConnected && 
+               (!String.IsNullOrEmpty(settings.SoundTitle) || !String.IsNullOrEmpty(settings.SoundIndex)))
             {
-                SoundpadManager.Instance.PlaySound(settings.SoundTitle);
-                Connection.ShowOk();
+                bool success = false;
+                if (!String.IsNullOrEmpty(settings.SoundIndex))
+                {
+                    int index;
+                    if (Int32.TryParse(settings.SoundIndex, out index))
+                    {
+                        success = SoundpadManager.Instance.PlaySound(index);
+                    }
+                }
+                else
+                {
+                    success = SoundpadManager.Instance.PlaySound(settings.SoundTitle);
+                }
+
+
+                if (success)
+                {
+                    Connection.ShowOk();
+                }
+                else
+                {
+                    Logger.Instance.LogMessage(TracingLevel.WARN, $"Failed to play sound! Connected: {SoundpadManager.Instance.IsConnected} File: {settings.SoundTitle ?? ""}");
+                    Connection.ShowAlert();
+                }
             }
             else
             {
@@ -91,7 +119,7 @@ namespace Soundpad
             }
 
             Connection.SetImageAsync((string)null);
-            if (settings.ShowSoundTitle && !String.IsNullOrEmpty(settings.SoundTitle))
+            if (settings.ShowSoundTitle && !String.IsNullOrEmpty(settings.SoundTitle) && String.IsNullOrEmpty(settings.SoundIndex))
             {
                 Connection.SetTitleAsync(settings.SoundTitle);
             }
@@ -102,6 +130,12 @@ namespace Soundpad
         public override void ReceivedSettings(ReceivedSettingsPayload payload)
         {
             Tools.AutoPopulateSettings(settings, payload.Settings);
+
+            int index;
+            if (!String.IsNullOrEmpty(settings.SoundIndex) && !Int32.TryParse(settings.SoundIndex, out index))
+            {
+                settings.SoundIndex = string.Empty;
+            }
             SaveSettings();
         }
 

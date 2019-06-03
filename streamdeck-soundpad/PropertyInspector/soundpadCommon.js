@@ -44,7 +44,6 @@ function connectElgatoStreamDeckSocket(inPort, inUUID, inRegisterEvent, inInfo, 
     
     var event = new Event('websocketCreate');
     document.dispatchEvent(event);
-    checkToken(actionInfo.payload.settings);
 }
 
 function setSettingsToPlugin(payload) {

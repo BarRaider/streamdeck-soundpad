@@ -7,7 +7,7 @@
     <meta name=apple-mobile-web-app-status-bar-style content=black>
     <title>BarRaider's Soundpad Integration</title>
     <link rel="stylesheet" href="../sdpi.css">
-    <script src="../soundpadCommon.js"></script>
+    <script src="../sdtools.common.js"></script>
     <script src="../soundpadPlay.js"></script>
 </head>
 <body>
@@ -18,9 +18,18 @@
         <div id="sdWrapper">
             <div class="sdpi-item" id="dvSounds">
                 <div class="sdpi-item-label">Sound</div>
-                <select class="sdpi-item-value select sdProperty" id="sounds" oninput="setSettings()"></select>
+                <select class="sdpi-item-value select sdProperty sdList" id="sounds" oninput="setSettings()" sdListTextProperty="soundName" sdListValueProperty="soundName" sdValueField="soundTitle"></select>
             </div>
         </div>
+        <div class="sdpi-item" id="dvPlayIndex">
+            <div class="sdpi-item-label">Sound Index</div>
+            <input class="sdpi-item-value sdProperty" placeholder="Sound Index shown in Soundpad" value="" id="soundIndex" pattern="^[0-9]*$" oninput="setSettings()">
+        </div>
+        <details class="sdpi-item-value">
+            <summary>Click here for more info on the 'Sound Index' field</summary>
+                <p>Setting the 'Sound Index' plays the song at that index (ignoring the 'Sound' dropdown above)</p>
+                <p>Note: To know the correct index, make sure you switch to 'All Sounds' mode in Soundpad: Windows->Categories->All Sounds</p>
+        </details>
         <div type="checkbox" class="sdpi-item" id="dvShowSoundTitle">
             <div class="sdpi-item-label">Show Title</div>
             <div class="sdpi-item-value">
