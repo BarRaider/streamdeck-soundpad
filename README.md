@@ -19,4 +19,5 @@ For support please contact the developer. Contact information is available at ht
 Please contact the developer. Contact information is available at https://barraider.github.io
 
 ## Dependencies
-Uses StreamDeck-Tools by BarRaider: [![NuGet](https://img.shields.io/nuget/v/streamdeck-tools.svg?style=flat)](https://www.nuget.org/packages/streamdeck-tools)
+* Uses StreamDeck-Tools by BarRaider: [![NuGet](https://img.shields.io/nuget/v/streamdeck-tools.svg?style=flat)](https://www.nuget.org/packages/streamdeck-tools)
+* Uses [soundpad-connector](https://github.com/medokin/soundpad-connector) by medokin
