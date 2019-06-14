@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Soundpad
@@ -15,7 +16,8 @@ namespace Soundpad
         private static readonly object objLock = new object();
 
         private SoundpadConnector.Soundpad soundpad;
-        private Dictionary<string, int> dicSounds;
+        private static Dictionary<string, int> dicSounds;
+        private static readonly object dicSoundsLock = new object();
         private bool isProbablyConnected = false;
         private Random rand = new Random();
 
@@ -45,14 +47,14 @@ namespace Soundpad
 
         private SoundpadManager()
         {
-            soundpad = new SoundpadConnector.Soundpad() { AutoReconnect = true};
+            soundpad = new SoundpadConnector.Soundpad() { AutoReconnect = true };
             soundpad.Connected += Soundpad_Connected;
             soundpad.Disconnected += Soundpad_Disconnected;
             Logger.Instance.LogMessage(TracingLevel.INFO, "Attempting to connect to Soundpad");
             soundpad.ConnectAsync();
 
         }
-        
+
         #endregion
 
         #region Public Methods
@@ -77,7 +79,7 @@ namespace Soundpad
             }
         }
 
-        public bool PlaySound(int soundIndex)
+        public async Task<bool> PlaySound(int soundIndex)
         {
             Logger.Instance.LogMessage(TracingLevel.INFO, $"Play Sound in Index: {soundIndex}");
             if (!IsConnected)
@@ -87,11 +89,10 @@ namespace Soundpad
                 return false;
             }
 
-            soundpad.PlaySound(soundIndex);
-            return true;
+            return (await soundpad.PlaySound(soundIndex)).IsSuccessful;
         }
 
-        public bool PlaySound(string soundTitle)
+        public async Task<bool> PlaySound(string soundTitle)
         {
             Logger.Instance.LogMessage(TracingLevel.INFO, $"Play Sound: {soundTitle}");
             if (!IsConnected)
@@ -103,8 +104,7 @@ namespace Soundpad
 
             if (dicSounds.ContainsKey(soundTitle))
             {
-                soundpad.PlaySound(dicSounds[soundTitle]);
-                return true;
+                return (await soundpad.PlaySound(dicSounds[soundTitle])).IsSuccessful;
             }
             else
             {
@@ -126,7 +126,9 @@ namespace Soundpad
             var sounds = GetAllSounds();
             if (sounds.Count > 0)
             {
-                soundpad.PlaySound(rand.Next(sounds.Count));
+                int randomSoundIndex = rand.Next(sounds.Count) + 1; // Indecies start at 1
+                Logger.Instance.LogMessage(TracingLevel.INFO, $"Playing Random Sound: {randomSoundIndex}");
+                soundpad.PlaySound(randomSoundIndex);
                 return true;
             }
 
@@ -152,12 +154,29 @@ namespace Soundpad
             soundpad.StopRecording();
         }
 
+        public async Task<bool> LoadPlaylist(string fileName)
+        {
+            Logger.Instance.LogMessage(TracingLevel.INFO, $"LoadPlaylist Called: {fileName}");
+            if ((await soundpad.LoadSoundlist(fileName)).IsSuccessful)
+            {
+                Thread.Sleep(1000); // Takes about 1 sec to refresh
+                await CacheAllSounds();
+                return true;
+            }
+            return false;
+        }
+
         public List<SoundpadSound> GetAllSounds()
         {
             List<SoundpadSound> sounds = new List<SoundpadSound>();
             if (dicSounds != null)
             {
-                foreach (string title in dicSounds?.Keys)
+                List<string> keys;
+                lock (dicSoundsLock)
+                {
+                    keys = dicSounds?.Keys.ToList();
+                }
+                foreach (string title in keys)
                 {
                     sounds.Add(new SoundpadSound() { SoundName = title, SoundIndex = dicSounds[title] });
                 }
@@ -166,29 +185,26 @@ namespace Soundpad
             return sounds.OrderBy(x => x.SoundName).ToList();
         }
 
-        public async void CacheAllSounds()
+        public async Task CacheAllSounds()
         {
+            Logger.Instance.LogMessage(TracingLevel.INFO, $"CacheAllSounds Called");
             if (IsConnected)
             {
                 var response = await soundpad.GetSoundlist();
                 if (response.IsSuccessful)
                 {
-                    int soundIndex;
-                    dicSounds = new Dictionary<string, int>();
-                    foreach (var sound in response.Value.Sounds)
+                    lock (dicSoundsLock)
                     {
-                        if (Int32.TryParse(sound.Index, out soundIndex))
+                        dicSounds = new Dictionary<string, int>();
+                        foreach (var sound in response.Value.Sounds)
                         {
-                            dicSounds[sound.Title] = soundIndex;
-                        }
-                        else
-                        {
-                            Logger.Instance.LogMessage(TracingLevel.WARN, $"Failed to convert sound index {sound.Index} to integer");
+                            dicSounds[sound.Title] = sound.Index;
                         }
                     }
                     SoundsUpdated?.Invoke(this, EventArgs.Empty);
                 }
             }
+            Logger.Instance.LogMessage(TracingLevel.INFO, $"CacheAllSounds Done. {dicSounds?.Keys?.Count ?? -1} sounds loaded.");
         }
 
         #endregion

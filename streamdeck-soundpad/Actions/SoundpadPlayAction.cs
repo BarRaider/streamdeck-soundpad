@@ -69,7 +69,7 @@ namespace Soundpad.Actions
             Logger.Instance.LogMessage(TracingLevel.INFO, "Destructor Called");
         }
 
-        public override void KeyPressed(KeyPayload payload)
+        public async override void KeyPressed(KeyPayload payload)
         {
             SaveSettings();
             if (SoundpadManager.Instance.IsConnected && 
@@ -81,28 +81,28 @@ namespace Soundpad.Actions
                     int index;
                     if (Int32.TryParse(settings.SoundIndex, out index))
                     {
-                        success = SoundpadManager.Instance.PlaySound(index);
+                        success = await SoundpadManager.Instance.PlaySound(index);
                     }
                 }
                 else
                 {
-                    success = SoundpadManager.Instance.PlaySound(settings.SoundTitle);
+                    success = await SoundpadManager.Instance.PlaySound(settings.SoundTitle);
                 }
 
 
                 if (success)
                 {
-                    Connection.ShowOk();
+                    await Connection.ShowOk();
                 }
                 else
                 {
                     Logger.Instance.LogMessage(TracingLevel.WARN, $"Failed to play sound! Connected: {SoundpadManager.Instance.IsConnected} File: {settings.SoundTitle ?? ""}");
-                    Connection.ShowAlert();
+                    await Connection.ShowAlert();
                 }
             }
             else
             {
-                Connection.ShowAlert();
+                await Connection.ShowAlert();
                 Logger.Instance.LogMessage(TracingLevel.WARN, $"Cannot play sound! Connected: {SoundpadManager.Instance.IsConnected} File: {settings.SoundTitle ?? ""}");
             }
         }

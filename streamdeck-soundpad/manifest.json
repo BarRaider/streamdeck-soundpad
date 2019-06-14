@@ -59,6 +59,21 @@
       "Tooltip": "Records sound and creates a new Soundpad sound",
       "UUID": "com.barraider.soundpadrecordptt",
       "PropertyInspectorPath": "PropertyInspector/Soundpad/SoundpadRecordPTT.html"
+    },
+    {
+      "Icon": "Images/iconload",
+      "Name": "Load Sound List",
+      "States": [
+        {
+          "Image": "Images/load",
+          "TitleAlignment": "bottom",
+          "FontSize": "9"
+        }
+      ],
+      "SupportedInMultiActions": true,
+      "Tooltip": "Loads an existing Soundpad Sound List (*.spl) file",
+      "UUID": "com.barraider.soundpadloadsoundlist",
+      "PropertyInspectorPath": "PropertyInspector/Soundpad/SoundpadLoadSoundList.html"
     }
   ],
   "Author": "BarRaider",
@@ -66,7 +81,7 @@
   "Name": "Soundpad Integration",
   "Icon": "Images/pluginIcon",
   "URL": "https://barraider.github.io/",
-  "Version": "1.3",
+  "Version": "1.4",
   "CodePath": "com.barraider.soundpad",
   "Category": "Soundpad [BarRaider]",
   "CategoryIcon": "Images/categoryIcon",

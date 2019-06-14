@@ -13,7 +13,7 @@ function connectElgatoStreamDeckSocket(inPort, inUUID, inRegisterEvent, inInfo, 
     console.log(inUUID, inActionInfo);
     actionInfo = JSON.parse(inActionInfo); // cache the info
     inInfo = JSON.parse(inInfo);
-    websocket = new WebSocket('ws://localhost:' + inPort);
+    websocket = new WebSocket('ws://127.0.0.1:' + inPort);
 
     addDynamicStyles(inInfo.colors);
 
