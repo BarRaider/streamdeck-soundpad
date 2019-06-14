@@ -4,13 +4,18 @@ Play sounds directly from Soundpad, without needing to configure hotkeys.
 
 **Author's website and contact information:** [https://barraider.github.io](https://barraider.github.io)
 
+## New in version 1.4
+* New "Load Playlist" action, allows loading an existing *.spl file
+* "Load Playlist" + "Play Random Action" now supported in multi-action.
+
+
 ## New in version 1.3
 * Support playing sounds based on the index in Soundpad UI
 * RecordPTT action - Utilizes Soundpad's internal recording function and allows recording sounds into Soundpad
 
 ### Download
 
-* [Download plugin](https://github.com/BarRaider/streamdeck-soundpad/releases/download/v1.3/com.barraider.soundpad.streamDeckPlugin)
+* [Download plugin](https://github.com/BarRaider/streamdeck-soundpad/releases/
 
 ## I found a bug, who do I contact?
 For support please contact the developer. Contact information is available at https://barraider.github.io
