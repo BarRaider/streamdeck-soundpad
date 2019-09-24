@@ -80,7 +80,7 @@
   "Description": "Soundpad integration for your Stream Deck. Play sounds directly from Soundpad, without needing to configure hotkeys",
   "Name": "Soundpad Integration",
   "Icon": "Images/pluginIcon",
-  "URL": "https://barraider.github.io/",
+  "URL": "https://BarRaider.com/",
   "Version": "1.4",
   "CodePath": "com.barraider.soundpad",
   "Category": "Soundpad [BarRaider]",
