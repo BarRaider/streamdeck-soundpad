@@ -2,7 +2,7 @@
 
 Play sounds directly from Soundpad, without needing to configure hotkeys.
 
-**Author's website and contact information:** [https://barraider.github.io](https://barraider.github.io)
+**Author's website and contact information:** [https://barraider.com](https://barraider.com)
 
 ## New in version 1.4
 * New "Load Playlist" action, allows loading an existing *.spl file
@@ -18,10 +18,10 @@ Play sounds directly from Soundpad, without needing to configure hotkeys.
 * [Download plugin](https://github.com/BarRaider/streamdeck-soundpad/releases/)
 
 ## I found a bug, who do I contact?
-For support please contact the developer. Contact information is available at https://barraider.github.io
+For support please contact the developer. Contact information is available at https://barraider.com
 
 ## I have a feature request, who do I contact?
-Please contact the developer. Contact information is available at https://barraider.github.io
+Please contact the developer. Contact information is available at https://barraider.com
 
 ## Dependencies
 * Uses StreamDeck-Tools by BarRaider: [![NuGet](https://img.shields.io/nuget/v/streamdeck-tools.svg?style=flat)](https://www.nuget.org/packages/streamdeck-tools)
