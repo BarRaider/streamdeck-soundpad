@@ -68,7 +68,6 @@ namespace Soundpad.Actions
                     success = await SoundpadManager.Instance.LoadPlaylist(settings.SoundListFileName);
                 }
 
-
                 if (success)
                 {
                     await Connection.ShowOk();
@@ -116,7 +115,7 @@ namespace Soundpad.Actions
         {
             return Connection.SetSettingsAsync(JObject.FromObject(settings));
         }
-        
-        #endregion 
+
+        #endregion
     }
 }

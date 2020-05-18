@@ -31,6 +31,21 @@
       "PropertyInspectorPath": "PropertyInspector/Soundpad/Soundpad.html"
     },
     {
+      "Icon": "Images/iconremove",
+      "Name": "Remove sound from Playlist",
+      "States": [
+        {
+          "Image": "Images/removeSound",
+          "TitleAlignment": "bottom",
+          "FontSize": "9"
+        }
+      ],
+      "SupportedInMultiActions": true,
+      "Tooltip": "Removes a sound from Soundpad at a specific index",
+      "UUID": "com.barraider.soundpadremove",
+      "PropertyInspectorPath": "PropertyInspector/Soundpad/SoundpadRemoveSound.html"
+    },
+    {
       "Icon": "Images/iconstop",
       "Name": "Stop",
       "States": [
@@ -81,7 +96,7 @@
   "Name": "Soundpad Integration",
   "Icon": "Images/pluginIcon",
   "URL": "https://BarRaider.com/",
-  "Version": "1.4",
+  "Version": "1.5",
   "CodePath": "com.barraider.soundpad",
   "Category": "Soundpad [BarRaider]",
   "CategoryIcon": "Images/categoryIcon",
@@ -93,6 +108,6 @@
   ],
   "SDKVersion": 2,
   "Software": {
-    "MinimumVersion": "4.3"
+    "MinimumVersion": "4.6.1"
   }
 }

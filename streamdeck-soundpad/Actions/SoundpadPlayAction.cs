@@ -16,11 +16,13 @@ namespace Soundpad.Actions
         {
             public static PluginSettings CreateDefaultSettings()
             {
-                PluginSettings instance = new PluginSettings();
-                instance.SoundTitle = String.Empty;
-                instance.ShowSoundTitle = false;
-                instance.SoundIndex = String.Empty;
-                instance.Sounds = null;
+                PluginSettings instance = new PluginSettings
+                {
+                    SoundTitle = String.Empty,
+                    ShowSoundTitle = false,
+                    SoundIndex = String.Empty,
+                    Sounds = null
+                };
                 return instance;
             }
 
@@ -34,7 +36,7 @@ namespace Soundpad.Actions
             public bool ShowSoundTitle { get; set; }
 
             [JsonProperty(PropertyName = "soundIndex")]
-            public string SoundIndex { get; set; }            
+            public string SoundIndex { get; set; }
         }
 
         #region Private Members
@@ -56,15 +58,15 @@ namespace Soundpad.Actions
                 this.settings = payload.Settings.ToObject<PluginSettings>();
             }
 
-            Connection.StreamDeckConnection.OnSendToPlugin += StreamDeckConnection_OnSendToPlugin;
+            Connection.OnSendToPlugin += Connection_OnSendToPlugin;
             SoundpadManager.Instance.SoundsUpdated += Instance_SoundsUpdated;
-            settings.Sounds = SoundpadManager.Instance.GetAllSounds();
+            settings.Sounds = SoundpadManager.Instance.GetAllSounds().GetAwaiter().GetResult();
             SaveSettings();
         }
 
         public override void Dispose()
         {
-            Connection.StreamDeckConnection.OnSendToPlugin -= StreamDeckConnection_OnSendToPlugin;
+            Connection.OnSendToPlugin -= Connection_OnSendToPlugin;
             SoundpadManager.Instance.SoundsUpdated -= Instance_SoundsUpdated;
             Logger.Instance.LogMessage(TracingLevel.INFO, "Destructor Called");
         }
@@ -72,14 +74,13 @@ namespace Soundpad.Actions
         public async override void KeyPressed(KeyPayload payload)
         {
             SaveSettings();
-            if (SoundpadManager.Instance.IsConnected && 
+            if (SoundpadManager.Instance.IsConnected &&
                (!String.IsNullOrEmpty(settings.SoundTitle) || !String.IsNullOrEmpty(settings.SoundIndex)))
             {
                 bool success = false;
                 if (!String.IsNullOrEmpty(settings.SoundIndex))
                 {
-                    int index;
-                    if (Int32.TryParse(settings.SoundIndex, out index))
+                    if (Int32.TryParse(settings.SoundIndex, out int index))
                     {
                         success = await SoundpadManager.Instance.PlaySound(index);
                     }
@@ -130,9 +131,7 @@ namespace Soundpad.Actions
         public override void ReceivedSettings(ReceivedSettingsPayload payload)
         {
             Tools.AutoPopulateSettings(settings, payload.Settings);
-
-            int index;
-            if (!String.IsNullOrEmpty(settings.SoundIndex) && !Int32.TryParse(settings.SoundIndex, out index))
+            if (!String.IsNullOrEmpty(settings.SoundIndex) && !Int32.TryParse(settings.SoundIndex, out _))
             {
                 settings.SoundIndex = string.Empty;
             }
@@ -143,10 +142,10 @@ namespace Soundpad.Actions
 
         #region Private Methods
 
-        private void Instance_SoundsUpdated(object sender, EventArgs e)
+        private async void Instance_SoundsUpdated(object sender, EventArgs e)
         {
-            settings.Sounds = SoundpadManager.Instance.GetAllSounds();
-            SaveSettings();
+            settings.Sounds = await SoundpadManager.Instance.GetAllSounds();
+            await SaveSettings();
         }
 
 
@@ -155,13 +154,9 @@ namespace Soundpad.Actions
             return Connection.SetSettingsAsync(JObject.FromObject(settings));
         }
 
-        private void StreamDeckConnection_OnSendToPlugin(object sender, streamdeck_client_csharp.StreamDeckEventReceivedEventArgs<streamdeck_client_csharp.Events.SendToPluginEvent> e)
+        private void Connection_OnSendToPlugin(object sender, BarRaider.SdTools.Wrappers.SDEventReceivedEventArgs<BarRaider.SdTools.Events.SendToPlugin> e)
         {
             var payload = e.Event.Payload;
-            if (Connection.ContextId != e.Event.Context)
-            {
-                return;
-            }
 
             if (payload["property_inspector"] != null)
             {

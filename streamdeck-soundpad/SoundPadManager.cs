@@ -14,12 +14,17 @@ namespace Soundpad
         #region Private Members
         private static SoundpadManager instance = null;
         private static readonly object objLock = new object();
+        private readonly SemaphoreSlim cacheSoundsLock = new SemaphoreSlim(1, 1);
+        private const int CACHE_SOUNDS_COOLDOWN_MS = 2000;
+        private const int CONNECT_COOLDOWN_MS = 2000;
 
         private SoundpadConnector.Soundpad soundpad;
         private static Dictionary<string, int> dicSounds;
         private static readonly object dicSoundsLock = new object();
+        private static readonly object connectAttemptLock = new object();
         private bool isProbablyConnected = false;
-        private Random rand = new Random();
+        private DateTime lastCacheSounds = DateTime.MinValue;
+        private DateTime lastConnectAttempt = DateTime.MinValue;
 
         #endregion
 
@@ -51,7 +56,7 @@ namespace Soundpad
             soundpad.Connected += Soundpad_Connected;
             soundpad.Disconnected += Soundpad_Disconnected;
             Logger.Instance.LogMessage(TracingLevel.INFO, "Attempting to connect to Soundpad");
-            soundpad.ConnectAsync();
+            Connect();
 
         }
 
@@ -74,8 +79,32 @@ namespace Soundpad
             Logger.Instance.LogMessage(TracingLevel.INFO, "Connect request received");
             if (!IsConnected)
             {
-                Logger.Instance.LogMessage(TracingLevel.INFO, "Attempting to connect to Soundpad");
-                soundpad.ConnectAsync();
+                if (soundpad.ConnectionStatus == ConnectionStatus.Connecting)
+                {
+                    Logger.Instance.LogMessage(TracingLevel.INFO, "Already trying to connect...");
+                    return;
+                }
+                lock (connectAttemptLock)
+                {
+                    if (!IsConnected)
+                    {
+                        if ((DateTime.Now - lastConnectAttempt).TotalMilliseconds < CONNECT_COOLDOWN_MS)
+                        {
+                            Logger.Instance.LogMessage(TracingLevel.INFO, "Connect in cooldown");
+                            return;
+                        }
+
+                        if (soundpad.ConnectionStatus == ConnectionStatus.Connecting)
+                        {
+                            Logger.Instance.LogMessage(TracingLevel.INFO, "Already trying to connect...");
+                            return;
+                        }
+                        Logger.Instance.LogMessage(TracingLevel.INFO, "Attempting to connect to Soundpad");
+                        lastConnectAttempt = DateTime.Now;
+                        soundpad.ConnectAsync();
+                    }
+                }
+               
             }
         }
 
@@ -113,7 +142,7 @@ namespace Soundpad
             }
         }
 
-        public bool PlayRandomSound()
+        public async Task<bool> PlayRandomSound()
         {
             Logger.Instance.LogMessage(TracingLevel.INFO, $"Play Random Sound Called");
             if (!IsConnected)
@@ -123,12 +152,12 @@ namespace Soundpad
                 return false;
             }
 
-            var sounds = GetAllSounds();
+            var sounds = await GetAllSounds();
             if (sounds.Count > 0)
             {
-                int randomSoundIndex = rand.Next(sounds.Count) + 1; // Indecies start at 1
+                int randomSoundIndex = RandomGenerator.Next(sounds.Count) + 1; // Indecies start at 1
                 Logger.Instance.LogMessage(TracingLevel.INFO, $"Playing Random Sound: {randomSoundIndex}");
-                soundpad.PlaySound(randomSoundIndex);
+                await soundpad.PlaySound(randomSoundIndex);
                 return true;
             }
 
@@ -140,6 +169,17 @@ namespace Soundpad
         {
             Logger.Instance.LogMessage(TracingLevel.INFO, $"Stop Sound Called");
             soundpad.StopSound();
+        }
+
+        public async Task RemoveSound(int index)
+        {
+            Logger.Instance.LogMessage(TracingLevel.INFO, $"Removing Sound called for index {index}");
+            await Task.Run(async () =>
+            {
+                await soundpad.SelectIndex(index);
+                await Task.Delay(500);
+                await soundpad.RemoveSelectedEntries(false);
+            });
         }
 
         public void RecordStart()
@@ -159,6 +199,7 @@ namespace Soundpad
             Logger.Instance.LogMessage(TracingLevel.INFO, $"LoadPlaylist Called: {fileName}");
             if ((await soundpad.LoadSoundlist(fileName)).IsSuccessful)
             {
+                lastCacheSounds = DateTime.MinValue;
                 Thread.Sleep(1000); // Takes about 1 sec to refresh
                 await CacheAllSounds();
                 return true;
@@ -166,19 +207,23 @@ namespace Soundpad
             return false;
         }
 
-        public List<SoundpadSound> GetAllSounds()
+        public async Task<List<SoundpadSound>> GetAllSounds()
         {
             List<SoundpadSound> sounds = new List<SoundpadSound>();
             if (dicSounds != null)
             {
+                if (dicSounds.Count == 0)
+                {
+                    await CacheAllSounds();
+                }
                 List<string> keys;
                 lock (dicSoundsLock)
                 {
                     keys = dicSounds?.Keys.ToList();
-                }
-                foreach (string title in keys)
-                {
-                    sounds.Add(new SoundpadSound() { SoundName = title, SoundIndex = dicSounds[title] });
+                    foreach (string title in keys)
+                    {
+                        sounds.Add(new SoundpadSound() { SoundName = title, SoundIndex = dicSounds[title] });
+                    }
                 }
             }
 
@@ -188,23 +233,45 @@ namespace Soundpad
         public async Task CacheAllSounds()
         {
             Logger.Instance.LogMessage(TracingLevel.INFO, $"CacheAllSounds Called");
-            if (IsConnected)
+            await cacheSoundsLock.WaitAsync();
+            try
             {
-                var response = await soundpad.GetSoundlist();
-                if (response.IsSuccessful)
+                if (IsConnected)
                 {
-                    lock (dicSoundsLock)
+                    if ((DateTime.Now - lastCacheSounds).TotalMilliseconds < CACHE_SOUNDS_COOLDOWN_MS)
                     {
-                        dicSounds = new Dictionary<string, int>();
-                        foreach (var sound in response.Value.Sounds)
-                        {
-                            dicSounds[sound.Title] = sound.Index;
-                        }
+                        Logger.Instance.LogMessage(TracingLevel.INFO, $"CacheAllSounds in cooldown");
+                        return;
                     }
-                    SoundsUpdated?.Invoke(this, EventArgs.Empty);
+                    var response = await soundpad.GetSoundlist();
+                    if (response.IsSuccessful)
+                    {
+                        lock (dicSoundsLock)
+                        {
+                            dicSounds = new Dictionary<string, int>();
+                            foreach (var sound in response.Value.Sounds)
+                            {
+                                dicSounds[sound.Title] = sound.Index;
+                            }
+                        }
+                        lastCacheSounds = DateTime.Now;
+                        SoundsUpdated?.Invoke(this, EventArgs.Empty);
+                    }
+                    else
+                    {
+                        Logger.Instance.LogMessage(TracingLevel.WARN, $"GetSoundlist failed from SoundPad: {response.ErrorMessage}");
+                    }
                 }
+                Logger.Instance.LogMessage(TracingLevel.INFO, $"CacheAllSounds Done. {dicSounds?.Keys?.Count ?? -1} sounds loaded.");
             }
-            Logger.Instance.LogMessage(TracingLevel.INFO, $"CacheAllSounds Done. {dicSounds?.Keys?.Count ?? -1} sounds loaded.");
+            catch (Exception ex)
+            {
+                Logger.Instance.LogMessage(TracingLevel.ERROR, $"CacheAllSounds Exception: {ex}");
+            }
+            finally
+            {
+                cacheSoundsLock.Release();
+            }
         }
 
         #endregion
@@ -215,13 +282,14 @@ namespace Soundpad
         {
             Logger.Instance.LogMessage(TracingLevel.WARN, "Disconnected from Soundpad");
             isProbablyConnected = false;
+            lastConnectAttempt = DateTime.MinValue;
         }
 
         private void Soundpad_Connected(object sender, EventArgs e)
         {
             isProbablyConnected = true;
             Logger.Instance.LogMessage(TracingLevel.INFO, "Connected to Soundpad");
-            CacheAllSounds();
+            _ = CacheAllSounds();
         }
 
         #endregion

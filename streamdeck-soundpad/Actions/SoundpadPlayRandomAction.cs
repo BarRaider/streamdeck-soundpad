@@ -17,9 +17,9 @@ namespace Soundpad.Actions
 
         public override void Dispose() { }
 
-        public override void KeyPressed(KeyPayload payload)
+        public async override void KeyPressed(KeyPayload payload)
         {
-            SoundpadManager.Instance.PlayRandomSound();
+            await SoundpadManager.Instance.PlayRandomSound();
         }
 
         public override void KeyReleased(KeyPayload payload) { }
