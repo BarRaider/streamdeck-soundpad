@@ -1,4 +1,5 @@
 ﻿using BarRaider.SdTools;
+using BarRaider.SdTools.Wrappers;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
@@ -9,6 +10,11 @@ using System.Threading.Tasks;
 
 namespace Soundpad.Actions
 {
+
+    //---------------------------------------------------
+    //          BarRaider's Hall Of Fame
+    // Subscriber: Tek_Soup
+    //---------------------------------------------------
     [PluginActionId("com.barraider.soundpadplay")]
     public class SoundpadPlayAction : PluginBase
     {
@@ -21,7 +27,8 @@ namespace Soundpad.Actions
                     SoundTitle = String.Empty,
                     ShowSoundTitle = false,
                     SoundIndex = String.Empty,
-                    Sounds = null
+                    Sounds = null,
+                    PushToPlay = false
                 };
                 return instance;
             }
@@ -37,11 +44,15 @@ namespace Soundpad.Actions
 
             [JsonProperty(PropertyName = "soundIndex")]
             public string SoundIndex { get; set; }
+
+            [JsonProperty(PropertyName = "pushToPlay")]
+            public bool PushToPlay { get; set; }
         }
 
         #region Private Members
 
-        private PluginSettings settings;
+        private readonly PluginSettings settings;
+        private TitleParameters titleParameters;
 
         #endregion
 
@@ -57,7 +68,7 @@ namespace Soundpad.Actions
             {
                 this.settings = payload.Settings.ToObject<PluginSettings>();
             }
-
+            Connection.OnTitleParametersDidChange += Connection_OnTitleParametersDidChange;
             Connection.OnSendToPlugin += Connection_OnSendToPlugin;
             SoundpadManager.Instance.SoundsUpdated += Instance_SoundsUpdated;
             settings.Sounds = SoundpadManager.Instance.GetAllSounds().GetAwaiter().GetResult();
@@ -66,6 +77,7 @@ namespace Soundpad.Actions
 
         public override void Dispose()
         {
+            Connection.OnTitleParametersDidChange -= Connection_OnTitleParametersDidChange;
             Connection.OnSendToPlugin -= Connection_OnSendToPlugin;
             SoundpadManager.Instance.SoundsUpdated -= Instance_SoundsUpdated;
             Logger.Instance.LogMessage(TracingLevel.INFO, "Destructor Called");
@@ -73,7 +85,7 @@ namespace Soundpad.Actions
 
         public async override void KeyPressed(KeyPayload payload)
         {
-            SaveSettings();
+            _ = SaveSettings();
             if (SoundpadManager.Instance.IsConnected &&
                (!String.IsNullOrEmpty(settings.SoundTitle) || !String.IsNullOrEmpty(settings.SoundIndex)))
             {
@@ -89,7 +101,6 @@ namespace Soundpad.Actions
                 {
                     success = await SoundpadManager.Instance.PlaySound(settings.SoundTitle);
                 }
-
 
                 if (success)
                 {
@@ -108,7 +119,14 @@ namespace Soundpad.Actions
             }
         }
 
-        public override void KeyReleased(KeyPayload payload) { }
+        public override void KeyReleased(KeyPayload payload) 
+        { 
+            if (settings.PushToPlay)
+            {
+                SoundpadManager.Instance.Stop();
+            }
+        
+        }
 
         public override void OnTick()
         {
@@ -122,7 +140,7 @@ namespace Soundpad.Actions
             Connection.SetImageAsync((string)null);
             if (settings.ShowSoundTitle && !String.IsNullOrEmpty(settings.SoundTitle) && String.IsNullOrEmpty(settings.SoundIndex))
             {
-                Connection.SetTitleAsync(settings.SoundTitle);
+                Connection.SetTitleAsync(Tools.SplitStringToFit(settings.SoundTitle, titleParameters, 5,5));
             }
         }
 
@@ -160,13 +178,18 @@ namespace Soundpad.Actions
 
             if (payload["property_inspector"] != null)
             {
-                switch (payload["property_inspector"].ToString().ToLower())
+                switch (payload["property_inspector"].ToString().ToLowerInvariant())
                 {
                     case "refreshsounds":
-                        SoundpadManager.Instance.CacheAllSounds();
+                        _ = SoundpadManager.Instance.CacheAllSounds();
                         break;
                 }
             }
+        }
+
+        private void Connection_OnTitleParametersDidChange(object sender, BarRaider.SdTools.Wrappers.SDEventReceivedEventArgs<BarRaider.SdTools.Events.TitleParametersDidChange> e)
+        {
+            titleParameters = e.Event?.Payload?.TitleParameters;
         }
 
         #endregion 

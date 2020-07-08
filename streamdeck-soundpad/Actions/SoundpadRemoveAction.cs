@@ -36,7 +36,7 @@ namespace Soundpad.Actions
         private const int DEFAULT_REMOVE_INDEX = 0;
 
 
-        private PluginSettings settings;
+        private readonly PluginSettings settings;
         private int removeIndex = DEFAULT_REMOVE_INDEX;
 
         #endregion
@@ -49,6 +49,7 @@ namespace Soundpad.Actions
             if (payload.Settings == null || payload.Settings.Count == 0)
             {
                 this.settings = PluginSettings.CreateDefaultSettings();
+                SaveSettings();
             }
             else
             {

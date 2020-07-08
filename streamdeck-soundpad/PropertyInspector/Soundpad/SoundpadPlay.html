@@ -6,8 +6,8 @@
     <meta name=apple-mobile-web-app-capable content=yes>
     <meta name=apple-mobile-web-app-status-bar-style content=black>
     <title>BarRaider's Soundpad Integration</title>
-    <link rel="stylesheet" href="../sdpi.css">
-    <script src="../sdtools.common.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/barraider/streamdeck-easypi@latest/src/sdpi.css">
+    <script src="https://cdn.jsdelivr.net/gh/barraider/streamdeck-easypi@latest/src/sdtools.common.js"></script>
     <script src="../soundpadPlay.js"></script>
 </head>
 <body>
@@ -27,8 +27,8 @@
         </div>
         <details class="sdpi-item-value">
             <summary>Click here for more info on the 'Sound Index' field</summary>
-                <p>Setting the 'Sound Index' plays the song at that index (ignoring the 'Sound' dropdown above)</p>
-                <p>Note: To know the correct index, make sure you switch to 'All Sounds' mode in Soundpad: Windows->Categories->All Sounds</p>
+            <p>Setting the 'Sound Index' plays the song at that index (ignoring the 'Sound' dropdown above)</p>
+            <p>Note: To know the correct index, make sure you switch to 'All Sounds' mode in Soundpad: Windows->Categories->All Sounds</p>
         </details>
         <div type="checkbox" class="sdpi-item" id="dvShowSoundTitle">
             <div class="sdpi-item-label">Show Title</div>
@@ -37,6 +37,14 @@
                 <label for="showSoundTitle" class="sdpi-item-label"><span></span>Show sound's title on button</label>
             </div>
         </div>
+        <div type="checkbox" class="sdpi-item" id="dvPushToPlay">
+            <div class="sdpi-item-label">PTP Mode</div>
+            <div class="sdpi-item-value">
+                <input id="pushToPlay" class="sdProperty sdCheckbox" type="checkbox" value="" oninput="setSettings()">
+                <label for="pushToPlay" class="sdpi-item-label"><span></span>Push-To-Play: Sound will only play while key remains pressed</label>
+            </div>
+        </div>
+        <hr/>
         <div class="sdpi-item" id="dvRefresh">
             <div class="sdpi-item-label">Refresh Sounds</div>
             <button class="sdpi-item-value max20" onclick="refreshSounds()">Refresh</button>

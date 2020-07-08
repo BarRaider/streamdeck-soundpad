@@ -31,6 +31,21 @@
       "PropertyInspectorPath": "PropertyInspector/Soundpad/Soundpad.html"
     },
     {
+      "Icon": "Images/playpauseIcon",
+      "Name": "Pause/Unpause Sound",
+      "States": [
+        {
+          "Image": "Images/playpauseAction",
+          "TitleAlignment": "bottom",
+          "FontSize": "9"
+        }
+      ],
+      "SupportedInMultiActions": true,
+      "Tooltip": "Pause/Unpause a sound",
+      "UUID": "com.barraider.soundpadpause",
+      "PropertyInspectorPath": "PropertyInspector/Soundpad/Soundpad.html"
+    },
+    {
       "Icon": "Images/iconremove",
       "Name": "Remove sound from Playlist",
       "States": [
@@ -96,7 +111,7 @@
   "Name": "Soundpad Integration",
   "Icon": "Images/pluginIcon",
   "URL": "https://BarRaider.com/",
-  "Version": "1.5",
+  "Version": "1.6",
   "CodePath": "com.barraider.soundpad",
   "Category": "Soundpad [BarRaider]",
   "CategoryIcon": "Images/categoryIcon",
@@ -108,6 +123,6 @@
   ],
   "SDKVersion": 2,
   "Software": {
-    "MinimumVersion": "4.6.1"
+    "MinimumVersion": "4.7"
   }
 }

@@ -18,7 +18,7 @@ namespace Soundpad
         private const int CACHE_SOUNDS_COOLDOWN_MS = 2000;
         private const int CONNECT_COOLDOWN_MS = 2000;
 
-        private SoundpadConnector.Soundpad soundpad;
+        private readonly SoundpadConnector.Soundpad soundpad;
         private static Dictionary<string, int> dicSounds;
         private static readonly object dicSoundsLock = new object();
         private static readonly object connectAttemptLock = new object();
@@ -272,6 +272,12 @@ namespace Soundpad
             {
                 cacheSoundsLock.Release();
             }
+        }
+
+        public void TogglePause()
+        {
+            Logger.Instance.LogMessage(TracingLevel.INFO, $"TogglePause Called");
+            soundpad.TogglePause();
         }
 
         #endregion

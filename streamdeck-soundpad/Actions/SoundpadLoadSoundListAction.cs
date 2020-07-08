@@ -17,8 +17,10 @@ namespace Soundpad.Actions
         {
             public static PluginSettings CreateDefaultSettings()
             {
-                PluginSettings instance = new PluginSettings();
-                instance.SoundListFileName = String.Empty;
+                PluginSettings instance = new PluginSettings
+                {
+                    SoundListFileName = String.Empty
+                };
                 return instance;
             }
 
@@ -29,7 +31,7 @@ namespace Soundpad.Actions
 
         #region Private Members
 
-        private PluginSettings settings;
+        private readonly PluginSettings settings;
 
         #endregion
 

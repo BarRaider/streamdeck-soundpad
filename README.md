@@ -4,6 +4,8 @@ Play sounds directly from Soundpad, without needing to configure hotkeys.
 
 **Author's website and contact information:** [https://barraider.com](https://barraider.com)
 
+# New in v1.6
+
 ## New in v1.5
 - New `Remove Sound` action allows you to remove a sound at a specific index from a playlist. Along with the `Record PTT` you can now use this as a sampler
 
@@ -12,7 +14,7 @@ Play sounds directly from Soundpad, without needing to configure hotkeys.
 * "Load Playlist" + "Play Random Action" now supported in multi-action.
 
 
-## New in version 1.3
+## Features
 * Support playing sounds based on the index in Soundpad UI
 * RecordPTT action - Utilizes Soundpad's internal recording function and allows recording sounds into Soundpad
 
