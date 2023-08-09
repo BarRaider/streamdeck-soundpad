@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Soundpad.Properties;
 
 namespace Soundpad.Actions
 {
@@ -53,6 +54,7 @@ namespace Soundpad.Actions
 
         private readonly PluginSettings settings;
         private TitleParameters titleParameters;
+        private bool titleIsDrawn = false;
 
         #endregion
 
@@ -132,15 +134,33 @@ namespace Soundpad.Actions
         {
             if (!SoundpadManager.Instance.IsConnected)
             {
-                Connection.SetImageAsync(Properties.Settings.Default.SoundPadNotRunning);
+                Connection.SetImageAsync(Settings.Default.SoundPadNotRunning);
                 Connection.SetTitleAsync(null);
+                titleIsDrawn = false;
+                
                 return;
             }
 
-            Connection.SetImageAsync((string)null);
-            if (settings.ShowSoundTitle && !String.IsNullOrEmpty(settings.SoundTitle) && String.IsNullOrEmpty(settings.SoundIndex))
+            Connection.SetImageAsync((string) null);
+            
+            if ((settings.ShowSoundTitle && !string.IsNullOrEmpty(settings.SoundTitle) &&
+                    string.IsNullOrEmpty(settings.SoundIndex)))
             {
-                Connection.SetTitleAsync(Tools.SplitStringToFit(settings.SoundTitle, titleParameters, 5,5));
+                if (!titleIsDrawn)
+                {
+                    // Only draw the title if we haven't yet.
+                    Connection.SetTitleAsync(Tools.SplitStringToFit(settings.SoundTitle, titleParameters, 5, 5));
+                    titleIsDrawn = true;
+                }
+            }
+            else
+            {
+                // If we drew the title but it's not supposed to be here anymore, then hide it.
+                if (titleIsDrawn)
+                {
+                    Connection.SetTitleAsync(string.Empty);
+                    titleIsDrawn = false;
+                }
             }
         }
 
