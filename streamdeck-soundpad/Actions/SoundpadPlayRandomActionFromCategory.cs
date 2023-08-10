@@ -28,6 +28,9 @@ namespace Soundpad.Actions
             [JsonProperty(PropertyName = "categoryIndex")]
             public string CategoryIndex { get; set; }
 
+            [JsonProperty(PropertyName = "avoidRepetition")]
+            public bool AvoidRepetition { get; set; }
+
             [JsonProperty(PropertyName = "pushToPlay")]
             public bool PushToPlay { get; set; }
 
@@ -50,6 +53,8 @@ namespace Soundpad.Actions
         private readonly PluginSettings settings;
         private TitleParameters titleParameters;
         private bool titleIsDrawn;
+        private Queue<int> shuffledQueue = new Queue<int>();
+        private int shuffledQueueOriginalSize = -1;
 
         #endregion
 
@@ -116,10 +121,74 @@ namespace Soundpad.Actions
 
                 if (categoryToPlayFrom != default)
                 {
-                    var randomSoundLocalIndex = RandomGenerator.Next(categoryToPlayFrom.Sounds.Count);
+                    if (settings.AvoidRepetition)
+                    {
+                        // If the amount of sounds changed, the user probably updated their sound list in SoundPad.
+                        // In that case, force a regeneration.
+                        if (shuffledQueueOriginalSize != categoryToPlayFrom.Sounds.Count)
+                        {
+                            shuffledQueue = new Queue<int>();
+                        }
 
-                    success = await SoundpadManager.Instance.PlaySound(categoryToPlayFrom.Sounds[randomSoundLocalIndex]
-                        .SoundIndex);
+                        bool didAppend = false;
+                        
+                        // If the queue is smaller than a threshold, then append a new random order to the queue.
+                        while (shuffledQueue.Count < categoryToPlayFrom.Sounds.Count + 1)
+                        {
+                            Logger.Instance.LogMessage(TracingLevel.INFO,
+                                $"Queue of random sounds of category={categoryToPlayFrom.Index} is smaller than the threshold. Appending elements.");
+                            
+                            // Here, we want to take the last X elements from the queue and avoid them in the collection
+                            // we are appending to the queue. This is so that the appended collection does not instantly
+                            // repeat the last X elements of the current queue at it's start.
+                            var avoidCountFromPreviousIteration = 1;
+
+                            if (categoryToPlayFrom.Sounds.Count <= avoidCountFromPreviousIteration)
+                            {
+                                avoidCountFromPreviousIteration = 0;
+                            }
+
+                            var lastTwoElements = shuffledQueue.Reverse().Take(avoidCountFromPreviousIteration);
+
+                            var iterationResult = categoryToPlayFrom.Sounds
+                                .Where(x => !lastTwoElements.Contains(x.SoundIndex))
+                                .OrderBy(x => RandomGenerator.Next(0, int.MaxValue))
+                                .Select(x => x.SoundIndex)
+                                .ToList();
+
+                            foreach (var element in iterationResult)
+                            {
+                                shuffledQueue.Enqueue(element);
+                            }
+                            
+                            shuffledQueueOriginalSize = categoryToPlayFrom.Sounds.Count;
+                            didAppend = true;
+                        }
+
+                        if (didAppend)
+                        {
+                            Logger.Instance.LogMessage(TracingLevel.INFO,
+                                $"New shuffled indices of sound queue are={string.Join(",", shuffledQueue.Select(x => x.ToString()))}");
+                        }
+
+                        var nextSoundIndex = shuffledQueue.Dequeue();
+
+                        Logger.Instance.LogMessage(TracingLevel.INFO,
+                            $"Playing shuffled index={nextSoundIndex} of category={categoryToPlayFrom.Index}");
+
+                        success = await SoundpadManager.Instance.PlaySound(nextSoundIndex);
+                    }
+                    else
+                    {
+                        var randomSoundLocalIndex = RandomGenerator.Next(categoryToPlayFrom.Sounds.Count);
+
+                        Logger.Instance.LogMessage(TracingLevel.INFO,
+                            $"Playing random index={categoryToPlayFrom.Sounds[randomSoundLocalIndex].SoundIndex} of category={categoryToPlayFrom.Index}");
+
+                        success = await SoundpadManager.Instance.PlaySound(categoryToPlayFrom
+                            .Sounds[randomSoundLocalIndex]
+                            .SoundIndex);
+                    }
                 }
 
                 if (success)
