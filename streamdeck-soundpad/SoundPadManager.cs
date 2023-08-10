@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using BarRaider.SdTools;
+using Newtonsoft.Json;
 using SoundpadConnector;
 
 namespace Soundpad
@@ -242,6 +243,8 @@ namespace Soundpad
 
                     if (response.IsSuccessful)
                     {
+                        Logger.Instance.LogMessage(TracingLevel.INFO, $"Returned category data = {JsonConvert.SerializeObject(response.Value)}");
+                        
                         // Convert returned data into a new object that can be safely passed around the application.
                         // This dictionary is never modified, only it's reference replaced, so that any other
                         // consumer will not run into exceptions while possibly iterating over it.
@@ -264,6 +267,7 @@ namespace Soundpad
                             .ToDictionary(sound => sound.SoundName, sound => sound);
 
                         lastCacheCategories = DateTime.Now;
+                        
                         CategoriesUpdated?.Invoke(this, EventArgs.Empty);
                         SoundsUpdated?.Invoke(this, EventArgs.Empty);
                     }

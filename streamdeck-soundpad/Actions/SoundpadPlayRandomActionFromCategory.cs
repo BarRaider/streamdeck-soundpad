@@ -292,7 +292,7 @@ namespace Soundpad.Actions
             {
                 switch (payload["property_inspector"].ToString().ToLowerInvariant())
                 {
-                    case "refreshSounds":
+                    case "refreshsounds":
                         _ = SoundpadManager.Instance.CacheAllCategories();
                         break;
                 }
