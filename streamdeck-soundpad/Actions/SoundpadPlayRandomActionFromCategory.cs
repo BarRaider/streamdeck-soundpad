@@ -49,7 +49,7 @@ namespace Soundpad.Actions
 
         private readonly PluginSettings settings;
         private TitleParameters titleParameters;
-        private bool titleIsDrawn = false;
+        private bool titleIsDrawn;
 
         #endregion
 
@@ -70,7 +70,13 @@ namespace Soundpad.Actions
             Connection.OnTitleParametersDidChange += Connection_OnTitleParametersDidChange;
             Connection.OnSendToPlugin += Connection_OnSendToPlugin;
             SoundpadManager.Instance.CategoriesUpdated += InstanceOnCategoriesUpdated;
-            settings.Categories = SoundpadManager.Instance.GetAllCategories().GetAwaiter().GetResult();
+
+            settings.Categories = SoundpadManager.Instance.GetAllCategories()
+                .GetAwaiter()
+                .GetResult()
+                .OrderBy(x => x.Name)
+                .ToList();
+
             SaveSettings();
         }
 
@@ -92,12 +98,13 @@ namespace Soundpad.Actions
                 var categories = await SoundpadManager.Instance.GetAllCategories();
 
                 SoundpadCategory categoryToPlayFrom = default;
-                
+
                 if (!string.IsNullOrEmpty(settings.CategoryIndex))
                 {
                     if (int.TryParse(settings.CategoryIndex, out var requestedCategoryIndex))
                     {
-                        categoryToPlayFrom = categories.FirstOrDefault(category => category.Index == requestedCategoryIndex);
+                        categoryToPlayFrom =
+                            categories.FirstOrDefault(category => category.Index == requestedCategoryIndex);
                     }
                 }
                 else
@@ -110,8 +117,9 @@ namespace Soundpad.Actions
                 if (categoryToPlayFrom != default)
                 {
                     var randomSoundLocalIndex = RandomGenerator.Next(categoryToPlayFrom.Sounds.Count);
-                    
-                    success = await SoundpadManager.Instance.PlaySound(categoryToPlayFrom.Sounds[randomSoundLocalIndex].SoundIndex);
+
+                    success = await SoundpadManager.Instance.PlaySound(categoryToPlayFrom.Sounds[randomSoundLocalIndex]
+                        .SoundIndex);
                 }
 
                 if (success)
@@ -148,14 +156,14 @@ namespace Soundpad.Actions
                 Connection.SetImageAsync(Settings.Default.SoundPadNotRunning);
                 Connection.SetTitleAsync(null);
                 titleIsDrawn = false;
-                
+
                 return;
             }
 
             Connection.SetImageAsync((string) null);
-            
-            if ((settings.ShowCategoryTitle && !string.IsNullOrEmpty(settings.CategoryTitle) &&
-                string.IsNullOrEmpty(settings.CategoryIndex)))
+
+            if (settings.ShowCategoryTitle && !string.IsNullOrEmpty(settings.CategoryTitle) &&
+                string.IsNullOrEmpty(settings.CategoryIndex))
             {
                 if (!titleIsDrawn)
                 {
@@ -182,6 +190,7 @@ namespace Soundpad.Actions
         public override void ReceivedSettings(ReceivedSettingsPayload payload)
         {
             Tools.AutoPopulateSettings(settings, payload.Settings);
+
             if (!string.IsNullOrEmpty(settings.CategoryIndex) && !int.TryParse(settings.CategoryIndex, out _))
             {
                 settings.CategoryIndex = string.Empty;
@@ -196,7 +205,8 @@ namespace Soundpad.Actions
 
         private async void InstanceOnCategoriesUpdated(object sender, EventArgs e)
         {
-            settings.Categories = await SoundpadManager.Instance.GetAllCategories();
+            settings.Categories = (await SoundpadManager.Instance.GetAllCategories()).OrderBy(x => x.Name).ToList();
+
             await SaveSettings();
         }
 
