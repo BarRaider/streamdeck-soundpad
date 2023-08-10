@@ -21,7 +21,6 @@ namespace Soundpad
         private readonly SoundpadConnector.Soundpad soundpad;
         private static Dictionary<string, SoundpadCategory> categories = new Dictionary<string, SoundpadCategory>();
         private static Dictionary<string, SoundpadSound> sounds = new Dictionary<string, SoundpadSound>();
-        private static readonly object dicCategoriesLock = new object();
         private static readonly object connectAttemptLock = new object();
         private bool isProbablyConnected;
         private DateTime lastCacheCategories = DateTime.MinValue;
@@ -243,29 +242,26 @@ namespace Soundpad
 
                     if (response.IsSuccessful)
                     {
-                        lock (dicCategoriesLock)
-                        {
-                            // Convert returned data into a new object that can be safely passed around the application.
-                            // This dictionary is never modified, only it's reference replaced, so that any other
-                            // consumer will not run into exceptions while possibly iterating over it.
-                            categories = response.Value.Categories.ToDictionary(category => category.Name,
-                                category => new SoundpadCategory
-                                {
-                                    Name = category.Name,
-                                    Index = category.Index,
-                                    Sounds = category.Sounds.Select(sound => new SoundpadSound
-                                        {
-                                            SoundName = sound.Title,
-                                            SoundIndex = sound.Index
-                                        })
-                                        .ToList()
-                                });
+                        // Convert returned data into a new object that can be safely passed around the application.
+                        // This dictionary is never modified, only it's reference replaced, so that any other
+                        // consumer will not run into exceptions while possibly iterating over it.
+                        categories = response.Value.Categories.ToDictionary(category => category.Name,
+                            category => new SoundpadCategory
+                            {
+                                Name = category.Name,
+                                Index = category.Index,
+                                Sounds = category.Sounds.Select(sound => new SoundpadSound
+                                    {
+                                        SoundName = sound.Title,
+                                        SoundIndex = sound.Index
+                                    })
+                                    .ToList()
+                            });
 
-                            // See above. Done separately for sounds aswell.
-                            sounds = categories
-                                .SelectMany(category => category.Value.Sounds)
-                                .ToDictionary(sound => sound.SoundName, sound => sound);
-                        }
+                        // See above. Done separately for sounds aswell.
+                        sounds = categories
+                            .SelectMany(category => category.Value.Sounds)
+                            .ToDictionary(sound => sound.SoundName, sound => sound);
 
                         lastCacheCategories = DateTime.Now;
                         CategoriesUpdated?.Invoke(this, EventArgs.Empty);
