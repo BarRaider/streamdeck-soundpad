@@ -20,8 +20,8 @@ namespace Soundpad
         private const int CONNECT_COOLDOWN_MS = 2000;
 
         private readonly SoundpadConnector.Soundpad soundpad;
-        private static Dictionary<string, SoundpadCategory> categories = new Dictionary<string, SoundpadCategory>();
-        private static Dictionary<string, SoundpadSound> sounds = new Dictionary<string, SoundpadSound>();
+        private static Dictionary<int, SoundpadCategory> categories = new Dictionary<int, SoundpadCategory>();
+        private static Dictionary<int, SoundpadSound> sounds = new Dictionary<int, SoundpadSound>();
         private static readonly object connectAttemptLock = new object();
         private bool isProbablyConnected;
         private DateTime lastCacheCategories = DateTime.MinValue;
@@ -128,9 +128,11 @@ namespace Soundpad
                 return false;
             }
 
-            if (sounds.TryGetValue(soundTitle, out var sound))
+            var sound = sounds.FirstOrDefault(x => x.Value.SoundName == soundTitle);
+
+            if (sound.Value != null)
             {
-                return (await soundpad.PlaySound(sound.SoundIndex)).IsSuccessful;
+                return (await soundpad.PlaySound(sound.Value.SoundIndex)).IsSuccessful;
             }
 
             Logger.Instance.LogMessage(TracingLevel.ERROR, $"Could not find sound to play: {soundTitle}");
@@ -243,12 +245,13 @@ namespace Soundpad
 
                     if (response.IsSuccessful)
                     {
-                        Logger.Instance.LogMessage(TracingLevel.INFO, $"Returned category data = {JsonConvert.SerializeObject(response.Value)}");
-                        
+                        Logger.Instance.LogMessage(TracingLevel.INFO,
+                            $"Returned category data = {JsonConvert.SerializeObject(response.Value)}");
+
                         // Convert returned data into a new object that can be safely passed around the application.
                         // This dictionary is never modified, only it's reference replaced, so that any other
                         // consumer will not run into exceptions while possibly iterating over it.
-                        categories = response.Value.Categories.ToDictionary(category => category.Name,
+                        categories = response.Value.Categories.ToDictionary(category => category.Index,
                             category => new SoundpadCategory
                             {
                                 Name = category.Name,
@@ -264,10 +267,10 @@ namespace Soundpad
                         // See above. Done separately for sounds aswell.
                         sounds = categories
                             .SelectMany(category => category.Value.Sounds)
-                            .ToDictionary(sound => sound.SoundName, sound => sound);
+                            .ToDictionary(sound => sound.SoundIndex, sound => sound);
 
                         lastCacheCategories = DateTime.Now;
-                        
+
                         CategoriesUpdated?.Invoke(this, EventArgs.Empty);
                         SoundsUpdated?.Invoke(this, EventArgs.Empty);
                     }
