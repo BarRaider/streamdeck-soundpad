@@ -276,6 +276,16 @@ namespace Soundpad.Actions
         {
             settings.Categories = (await SoundpadManager.Instance.GetAllCategories()).OrderBy(x => x.Name).ToList();
 
+            var category = settings.Categories.FirstOrDefault(x => x.Name == settings.CategoryTitle);
+
+            if (category == null || !shuffledQueue.All(queuedIndex => category.Sounds.Any(sound => sound.SoundIndex == queuedIndex)))
+            {
+                Logger.Instance.LogMessage(TracingLevel.INFO,
+                    $"Sound indices of category={category.Index} changed. Forcing rebuild of sound queue.");
+                
+                shuffledQueue = new Queue<int>();
+            }
+            
             await SaveSettings();
         }
 
