@@ -31,6 +31,21 @@
       "PropertyInspectorPath": "PropertyInspector/Soundpad/Soundpad.html"
     },
     {
+      "Icon": "Images/iconplayrand",
+      "Name": "Play Random Sound Of Category",
+      "States": [
+        {
+          "Image": "Images/soundrand",
+          "TitleAlignment": "bottom",
+          "FontSize": "9"
+        }
+      ],
+      "SupportedInMultiActions": true,
+      "Tooltip": "Play a random sound from a specific Soundpad category.",
+      "UUID": "com.barraider.soundpadplayrandfromcategory",
+      "PropertyInspectorPath": "PropertyInspector/Soundpad/SoundpadPlayRandomFromCategory.html"
+    },
+    {
       "Icon": "Images/playpauseIcon",
       "Name": "Pause/Unpause Sound",
       "States": [

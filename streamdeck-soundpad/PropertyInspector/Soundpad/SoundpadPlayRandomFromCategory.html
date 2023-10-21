@@ -1,0 +1,60 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name=viewport content="width=device-width,initial-scale=1,maximum-scale=1,minimum-scale=1,user-scalable=no,minimal-ui,viewport-fit=cover">
+    <meta name=apple-mobile-web-app-capable content=yes>
+    <meta name=apple-mobile-web-app-status-bar-style content=black>
+    <title>BarRaider's Soundpad Integration</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/barraider/streamdeck-easypi@latest/src/sdpi.css">
+    <script src="https://cdn.jsdelivr.net/gh/barraider/streamdeck-easypi@latest/src/sdtools.common.js"></script>
+    <script src="../soundpadPlay.js"></script>
+</head>
+<body>
+    <div class="sdpi-wrapper">
+        <details class="message">
+            <summary>For feedback/suggestions contact me at <span class="linkspan" onclick="openWebsite()">https://BarRaider.com</span></summary>
+        </details>
+        <div id="sdWrapper">
+            <div class="sdpi-item" id="dvSounds">
+                <div class="sdpi-item-label">Category</div>
+                <select class="sdpi-item-value select sdProperty sdList" id="categories" oninput="setSettings()" sdListTextProperty="categoryName" sdListValueProperty="categoryName" sdValueField="categoryTitle"></select>
+            </div>
+        </div>
+        <div class="sdpi-item" id="dvPlayIndex">
+            <div class="sdpi-item-label">Category Index (Optional)</div>
+            <input class="sdpi-item-value sdProperty" placeholder="Category Index shown in Soundpad" value="" id="categoryIndex" pattern="^[0-9]*$" oninput="setSettings()">
+        </div>
+        <details class="sdpi-item-value">
+            <summary>Click here for more info on the 'Category Index' field</summary>
+            <p>Setting the 'Category Index' plays a random song of the category at that index (ignoring the 'Category' dropdown above)</p>
+        </details>
+        <div type="checkbox" class="sdpi-item" id="dvShowSoundTitle">
+            <div class="sdpi-item-label">Show Title</div>
+            <div class="sdpi-item-value">
+                <input id="showCategoryTitle" class="sdProperty sdCheckbox" type="checkbox" value="" oninput="setSettings()">
+                <label for="showCategoryTitle" class="sdpi-item-label"><span></span>Show category's title on button</label>
+            </div>
+        </div>
+        <div type="checkbox" class="sdpi-item" id="dvAvoidRepetition">
+            <div class="sdpi-item-label">Avoid Repetition</div>
+            <div class="sdpi-item-value">
+                <input id="avoidRepetition" class="sdProperty sdCheckbox" type="checkbox" value="" oninput="setSettings()">
+                <label for="avoidRepetition" class="sdpi-item-label"><span></span>Avoid repetition by playing all sounds before repeating</label>
+            </div>
+        </div>
+        <div type="checkbox" class="sdpi-item" id="dvPushToPlay">
+            <div class="sdpi-item-label">PTP Mode</div>
+            <div class="sdpi-item-value">
+                <input id="pushToPlay" class="sdProperty sdCheckbox" type="checkbox" value="" oninput="setSettings()">
+                <label for="pushToPlay" class="sdpi-item-label"><span></span>Push-To-Play: Sound will only play while key remains pressed</label>
+            </div>
+        </div>
+        <hr/>
+        <div class="sdpi-item" id="dvRefresh">
+            <div class="sdpi-item-label">Refresh Data</div>
+            <button class="sdpi-item-value max20" onclick="refreshSounds()">Refresh</button>
+        </div>
+    </div>
+</body>
+</html>
