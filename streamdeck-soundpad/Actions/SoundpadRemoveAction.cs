@@ -15,7 +15,7 @@ namespace Soundpad.Actions
     // Geekie_Benji - Tip: $10.10
     //---------------------------------------------------
     [PluginActionId("com.barraider.soundpadremove")]
-    public class SoundpadRemoveAction : PluginBase
+    public class SoundpadRemoveAction : KeypadBase
     {
         private class PluginSettings
         {

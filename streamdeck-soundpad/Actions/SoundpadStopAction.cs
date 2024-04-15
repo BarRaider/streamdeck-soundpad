@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 namespace Soundpad.Actions
 {
     [PluginActionId("com.barraider.soundpadstop")]
-    public class SoundpadStopAction : PluginBase
+    public class SoundpadStopAction : KeypadBase
     {
         public SoundpadStopAction(SDConnection connection, InitialPayload payload) : base(connection, payload)
         {

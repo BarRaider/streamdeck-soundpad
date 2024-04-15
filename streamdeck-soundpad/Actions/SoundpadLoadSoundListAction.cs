@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 namespace Soundpad.Actions
 {
     [PluginActionId("com.barraider.soundpadloadsoundlist")]
-    public class SoundpadLoadSoundListAction : PluginBase
+    public class SoundpadLoadSoundListAction : KeypadBase
     {
         private class PluginSettings
         {

@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 namespace Soundpad.Actions
 {
     [PluginActionId("com.barraider.soundpadrecordptt")]
-    public class SoundpadRecordPTTAction : PluginBase
+    public class SoundpadRecordPTTAction : KeypadBase
     {
         public SoundpadRecordPTTAction(SDConnection connection, InitialPayload payload) : base(connection, payload)
         {
