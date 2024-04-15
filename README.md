@@ -4,6 +4,12 @@ Play sounds directly from Soundpad, without needing to configure hotkeys.
 
 **Author's website and contact information:** [https://barraider.com](https://barraider.com)
 
+# New in v1.7
+- Added support for categories 🔥
+  - `Play Random Sound` can now be limited to a specific category
+  - `Play Sound` can now be limited to a specific category
+- Bypassed previous limit of ~1300 sounds and should now support anything  you put in SoundPad
+
 # New in v1.6
 - New `PTP (Push-To-Play)` mode in Play Action stops sound when button is released
 - New `Play/Pause` Action allows to pause and resume sounds
