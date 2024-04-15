@@ -16,7 +16,7 @@ namespace Soundpad.Actions
     // Subscriber: Tek_Soup
     //---------------------------------------------------
     [PluginActionId("com.barraider.soundpadplay")]
-    public class SoundpadPlayAction : PluginBase
+    public class SoundpadPlayAction : KeypadBase
     {
         private class PluginSettings
         {
@@ -28,7 +28,9 @@ namespace Soundpad.Actions
                     ShowSoundTitle = false,
                     SoundIndex = String.Empty,
                     Sounds = null,
-                    PushToPlay = false
+                    PushToPlay = false,
+                    Categories = null,
+                    Category = String.Empty
                 };
                 return instance;
             }
@@ -47,6 +49,12 @@ namespace Soundpad.Actions
 
             [JsonProperty(PropertyName = "pushToPlay")]
             public bool PushToPlay { get; set; }
+
+            [JsonProperty(PropertyName = "categories")]
+            public List<SoundpadCategory> Categories { get; set; }
+
+            [JsonProperty(PropertyName = "category")]
+            public string Category { get; set; }
         }
 
         #region Private Members
@@ -71,8 +79,7 @@ namespace Soundpad.Actions
             Connection.OnTitleParametersDidChange += Connection_OnTitleParametersDidChange;
             Connection.OnSendToPlugin += Connection_OnSendToPlugin;
             SoundpadManager.Instance.SoundsUpdated += Instance_SoundsUpdated;
-            settings.Sounds = SoundpadManager.Instance.GetAllSounds().GetAwaiter().GetResult();
-            SaveSettings();
+            _ = InitializeSettings();
         }
 
         public override void Dispose()
@@ -140,20 +147,16 @@ namespace Soundpad.Actions
             Connection.SetImageAsync((string)null);
             if (settings.ShowSoundTitle && !String.IsNullOrEmpty(settings.SoundTitle) && String.IsNullOrEmpty(settings.SoundIndex))
             {
-                Connection.SetTitleAsync(Tools.SplitStringToFit(settings.SoundTitle, titleParameters, 5,5));
+                Connection.SetTitleAsync(settings.SoundTitle?.SplitToFitKey(titleParameters, 5,5));
             }
         }
 
         public override void ReceivedGlobalSettings(ReceivedGlobalSettingsPayload payload) { }
 
-        public override void ReceivedSettings(ReceivedSettingsPayload payload)
+        public override async void ReceivedSettings(ReceivedSettingsPayload payload)
         {
             Tools.AutoPopulateSettings(settings, payload.Settings);
-            if (!String.IsNullOrEmpty(settings.SoundIndex) && !Int32.TryParse(settings.SoundIndex, out _))
-            {
-                settings.SoundIndex = string.Empty;
-            }
-            SaveSettings();
+            await InitializeSettings();
         }
 
         #endregion
@@ -162,8 +165,7 @@ namespace Soundpad.Actions
 
         private async void Instance_SoundsUpdated(object sender, EventArgs e)
         {
-            settings.Sounds = await SoundpadManager.Instance.GetAllSounds();
-            await SaveSettings();
+            await InitializeSettings();
         }
 
 
@@ -190,6 +192,18 @@ namespace Soundpad.Actions
         private void Connection_OnTitleParametersDidChange(object sender, BarRaider.SdTools.Wrappers.SDEventReceivedEventArgs<BarRaider.SdTools.Events.TitleParametersDidChange> e)
         {
             titleParameters = e.Event?.Payload?.TitleParameters;
+        }
+
+        private async Task InitializeSettings()
+        {
+            settings.Categories = await SoundpadManager.Instance.GetAllCategories();
+            settings.Sounds = await SoundpadManager.Instance.GetCategorySounds(settings.Category);
+            
+            if (!String.IsNullOrEmpty(settings.SoundIndex) && !Int32.TryParse(settings.SoundIndex, out _))
+            {
+                settings.SoundIndex = string.Empty;
+            }
+            await SaveSettings();
         }
 
         #endregion 

@@ -1,0 +1,18 @@
+﻿using Newtonsoft.Json;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace Soundpad
+{
+    public class SoundpadCategory
+    {
+        [JsonProperty(PropertyName = "categoryName")]
+        public string CategoryName { get; set; }
+
+        [JsonProperty(PropertyName = "categoryIndex")]
+        public int CategoryIndex { get; set; }
+    }
+}

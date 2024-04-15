@@ -8,19 +8,24 @@
     <title>BarRaider's Soundpad Integration</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/barraider/streamdeck-easypi@latest/src/sdpi.css">
     <script src="https://cdn.jsdelivr.net/gh/barraider/streamdeck-easypi@latest/src/sdtools.common.js"></script>
+    <script src="../soundpadPlay.js"></script>
 </head>
 <body>
     <div class="sdpi-wrapper">
         <details class="message">
             <summary>For feedback/suggestions contact me at <span class="linkspan" onclick="openWebsite()">https://BarRaider.com</span></summary>
         </details>
-        <div class="sdpi-item" id="dvRemoveIndex">
-            <div class="sdpi-item-label">Sound Index</div>
-            <input class="sdpi-item-value sdProperty" placeholder="Sound Index shown in Soundpad" value="" id="removeSoundIndex" pattern="^[0-9]*$" oninput="setSettings()">
+        <div id="sdWrapper">
+            <div class="sdpi-item" id="dvCategories">
+                <div class="sdpi-item-label">Category</div>
+                <select class="sdpi-item-value select sdProperty sdList" id="categories" oninput="setSettings()" sdListTextProperty="categoryName" sdListValueProperty="categoryName" sdValueField="category"></select>
+            </div>
+            <hr />
+            <div class="sdpi-item" id="dvRefresh">
+                <div class="sdpi-item-label">Refresh Sounds</div>
+                <button class="sdpi-item-value max20" onclick="refreshSounds()">Refresh</button>
+            </div>
         </div>
-        <details class="sdpi-item-value">
-            <summary>Note: The Sound Index here refers to whichever category is currently shown in your SoundPad UI</summary>
-        </details>
     </div>
 </body>
 </html>

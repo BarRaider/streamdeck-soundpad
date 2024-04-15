@@ -1,5 +1,6 @@
 ﻿using BarRaider.SdTools;
 using SoundpadConnector;
+using SoundpadConnector.XML;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,6 +13,8 @@ namespace Soundpad
     public class SoundpadManager
     {
         #region Private Members
+        private const string ALL_SOUNDS_CATEGORY = "All sounds";
+
         private static SoundpadManager instance = null;
         private static readonly object objLock = new object();
         private readonly SemaphoreSlim cacheSoundsLock = new SemaphoreSlim(1, 1);
@@ -21,6 +24,8 @@ namespace Soundpad
         private readonly SoundpadConnector.Soundpad soundpad;
         private static Dictionary<string, int> dicSounds;
         private static readonly object dicSoundsLock = new object();
+        private static Dictionary<string, Category> dicCategories;
+        private static readonly object dicCategoriesLock = new object();
         private static readonly object connectAttemptLock = new object();
         private bool isProbablyConnected = false;
         private DateTime lastCacheSounds = DateTime.MinValue;
@@ -57,7 +62,6 @@ namespace Soundpad
             soundpad.Disconnected += Soundpad_Disconnected;
             Logger.Instance.LogMessage(TracingLevel.INFO, "Attempting to connect to Soundpad");
             Connect();
-
         }
 
         #endregion
@@ -104,7 +108,7 @@ namespace Soundpad
                         soundpad.ConnectAsync();
                     }
                 }
-               
+
             }
         }
 
@@ -142,7 +146,7 @@ namespace Soundpad
             }
         }
 
-        public async Task<bool> PlayRandomSound()
+        public async Task<bool> PlayRandomSound(string categoryName)
         {
             Logger.Instance.LogMessage(TracingLevel.INFO, $"Play Random Sound Called");
             if (!IsConnected)
@@ -152,12 +156,22 @@ namespace Soundpad
                 return false;
             }
 
-            var sounds = await GetAllSounds();
-            if (sounds.Count > 0)
+            List<SoundpadSound> sounds = null;
+            if (string.IsNullOrEmpty(categoryName))
             {
-                int randomSoundIndex = RandomGenerator.Next(sounds.Count) + 1; // Indecies start at 1
-                Logger.Instance.LogMessage(TracingLevel.INFO, $"Playing Random Sound: {randomSoundIndex}");
-                await soundpad.PlaySound(randomSoundIndex);
+                sounds = await GetAllSounds();
+            }
+            else
+            {
+                sounds = await GetCategorySounds(categoryName);
+            }
+
+            if (sounds != null && sounds.Count > 0)
+            {
+                int randomSoundIndex = RandomGenerator.Next(sounds.Count);
+                int allSoundsIndex = sounds[randomSoundIndex].SoundIndex;
+                Logger.Instance.LogMessage(TracingLevel.INFO, $"Playing Random Sound: {sounds[randomSoundIndex].SoundName}/{allSoundsIndex} from category {categoryName}");
+                await soundpad.PlaySound(allSoundsIndex);
                 return true;
             }
 
@@ -168,7 +182,7 @@ namespace Soundpad
         public void Stop()
         {
             Logger.Instance.LogMessage(TracingLevel.INFO, $"Stop Sound Called");
-            soundpad.StopSound();
+            _ = soundpad.StopSound();
         }
 
         public async Task RemoveSound(int index)
@@ -185,13 +199,13 @@ namespace Soundpad
         public void RecordStart()
         {
             Logger.Instance.LogMessage(TracingLevel.INFO, $"RecordStart Called");
-            soundpad.StartRecording();
+            _ = soundpad.StartRecording();
         }
 
         public void RecordStop()
         {
             Logger.Instance.LogMessage(TracingLevel.INFO, $"RecordStop Called");
-            soundpad.StopRecording();
+            _ = soundpad.StopRecording();
         }
 
         public async Task<bool> LoadPlaylist(string fileName)
@@ -230,12 +244,62 @@ namespace Soundpad
             return sounds.OrderBy(x => x.SoundName).ToList();
         }
 
+        public async Task<List<SoundpadSound>> GetCategorySounds(string categoryName)
+        {
+            if (String.IsNullOrEmpty(categoryName) || categoryName == ALL_SOUNDS_CATEGORY)
+            {
+                return await GetAllSounds();
+            }
+
+            List<SoundpadSound> sounds = new List<SoundpadSound>();
+            if (dicCategories != null)
+            {
+                if (dicCategories.Count == 0)
+                {
+                    await CacheAllSounds();
+                }
+                if (dicCategories.ContainsKey(categoryName))
+                {
+                    foreach (var sound in dicCategories[categoryName].Sounds)
+                    {
+                        sounds.Add(new SoundpadSound() { SoundName = sound.Title, SoundIndex = sound.Index });
+                    }
+                }
+            }
+
+            return sounds.OrderBy(x => x.SoundName).ToList();
+        }
+
+        public async Task<List<SoundpadCategory>> GetAllCategories()
+        {
+            List<SoundpadCategory> categories = new List<SoundpadCategory>();
+            if (dicCategories != null)
+            {
+                if (dicCategories.Count == 0)
+                {
+                    await CacheAllSounds();
+                }
+                List<string> keys;
+                lock (dicCategoriesLock)
+                {
+                    keys = dicCategories?.Keys.ToList();
+                    foreach (string title in keys)
+                    {
+                        categories.Add(new SoundpadCategory() { CategoryName = title, CategoryIndex = dicCategories[title].Index });
+                    }
+                }
+            }
+
+            return categories.OrderBy(x => x.CategoryName).ToList();
+        }
+
         public async Task CacheAllSounds()
         {
             Logger.Instance.LogMessage(TracingLevel.INFO, $"CacheAllSounds Called");
             await cacheSoundsLock.WaitAsync();
             try
             {
+                bool soundsUpdated = false;
                 if (IsConnected)
                 {
                     if ((DateTime.Now - lastCacheSounds).TotalMilliseconds < CACHE_SOUNDS_COOLDOWN_MS)
@@ -255,14 +319,39 @@ namespace Soundpad
                             }
                         }
                         lastCacheSounds = DateTime.Now;
-                        SoundsUpdated?.Invoke(this, EventArgs.Empty);
+                        soundsUpdated = true;
                     }
                     else
                     {
                         Logger.Instance.LogMessage(TracingLevel.WARN, $"GetSoundlist failed from SoundPad: {response.ErrorMessage}");
                     }
+
+                    var catResponse = await soundpad.GetCategories(withSounds: true);
+                    if (catResponse.IsSuccessful)
+                    {
+                        lock (dicCategoriesLock)
+                        {
+                            dicCategories = new Dictionary<string, Category>();
+                            foreach (var cat in catResponse.Value.Categories)
+                            {
+                                dicCategories[cat.Name] = cat;
+                            }
+                        }
+                        lastCacheSounds = DateTime.Now;
+                        soundsUpdated = true;
+                    }
+                    else
+                    {
+                        Logger.Instance.LogMessage(TracingLevel.WARN, $"GetCategories failed from SoundPad: {catResponse.ErrorMessage}");
+                    }
+
+
+                    if (soundsUpdated)
+                    {
+                        SoundsUpdated?.Invoke(this, EventArgs.Empty);
+                    }
                 }
-                Logger.Instance.LogMessage(TracingLevel.INFO, $"CacheAllSounds Done. {dicSounds?.Keys?.Count ?? -1} sounds loaded.");
+                Logger.Instance.LogMessage(TracingLevel.INFO, $"CacheAllSounds Done. {dicSounds?.Keys?.Count ?? -1} sounds loaded. {dicCategories?.Keys?.Count ?? -1} categories loaded.");
             }
             catch (Exception ex)
             {
