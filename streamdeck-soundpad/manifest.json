@@ -28,7 +28,7 @@
       "SupportedInMultiActions": true,
       "Tooltip": "Play a random sound from Soundpad.",
       "UUID": "com.barraider.soundpadplayrand",
-      "PropertyInspectorPath": "PropertyInspector/Soundpad/Soundpad.html"
+      "PropertyInspectorPath": "PropertyInspector/Soundpad/SoundpadPlayRandom.html"
     },
     {
       "Icon": "Images/playpauseIcon",
@@ -111,7 +111,7 @@
   "Name": "Soundpad Integration",
   "Icon": "Images/pluginIcon",
   "URL": "https://BarRaider.com/",
-  "Version": "1.6",
+  "Version": "1.7",
   "CodePath": "com.barraider.soundpad",
   "Category": "Soundpad [BarRaider]",
   "CategoryIcon": "Images/categoryIcon",
@@ -123,6 +123,6 @@
   ],
   "SDKVersion": 2,
   "Software": {
-    "MinimumVersion": "4.7"
+    "MinimumVersion": "6.4"
   }
 }
