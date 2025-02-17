@@ -111,7 +111,7 @@
   "Name": "Soundpad Integration",
   "Icon": "Images/pluginIcon",
   "URL": "https://BarRaider.com/",
-  "Version": "1.7",
+  "Version": "1.7.1",
   "CodePath": "com.barraider.soundpad",
   "Category": "Soundpad [BarRaider]",
   "CategoryIcon": "Images/categoryIcon",
@@ -123,6 +123,6 @@
   ],
   "SDKVersion": 2,
   "Software": {
-    "MinimumVersion": "6.4"
+    "MinimumVersion": "6.8.1"
   }
 }

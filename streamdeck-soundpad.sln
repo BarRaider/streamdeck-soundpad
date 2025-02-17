@@ -5,7 +5,7 @@ VisualStudioVersion = 17.8.34525.116
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Soundpad", "streamdeck-soundpad\Soundpad.csproj", "{2E67D4C8-86D9-4F0C-A078-5B3BB3B6DA91}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SoundpadConnector", "..\soundpad-connector\src\SoundpadConnector\SoundpadConnector.csproj", "{481EDF58-3949-4D89-AC22-DC072A6A84AA}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SoundpadConnector", "..\soundpad-connector-bar\src\SoundpadConnector\SoundpadConnector.csproj", "{481EDF58-3949-4D89-AC22-DC072A6A84AA}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

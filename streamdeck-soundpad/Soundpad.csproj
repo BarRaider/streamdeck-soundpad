@@ -66,17 +66,21 @@
       <HintPath>..\..\..\DotNet\StreamDeck\packages\Newtonsoft.Json.13.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="NLog, Version=5.0.0.0, Culture=neutral, PublicKeyToken=5120e14c03d0593c, processorArchitecture=MSIL">
-      <HintPath>..\..\..\DotNet\StreamDeck\packages\NLog.5.2.8\lib\net46\NLog.dll</HintPath>
+      <HintPath>..\..\..\DotNet\StreamDeck\packages\NLog.5.4.0\lib\net46\NLog.dll</HintPath>
     </Reference>
-    <Reference Include="StreamDeckTools, Version=6.2.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\..\..\DotNet\StreamDeck\packages\StreamDeck-Tools.6.2.0\lib\netstandard2.0\StreamDeckTools.dll</HintPath>
+    <Reference Include="SoundpadConnector, Version=1.0.0.0, Culture=neutral, processorArchitecture=AMD64">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\soundpad-connector-bar\src\SoundpadConnector\obj\x64\Release\SoundpadConnector.dll</HintPath>
+    </Reference>
+    <Reference Include="StreamDeckTools, Version=6.3.1.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\..\DotNet\StreamDeck\packages\StreamDeck-Tools.6.3.1\lib\netstandard2.0\StreamDeckTools.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />
     <Reference Include="System.Drawing" />
-    <Reference Include="System.Drawing.Common, Version=8.0.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
-      <HintPath>..\..\..\DotNet\StreamDeck\packages\System.Drawing.Common.8.0.4\lib\net462\System.Drawing.Common.dll</HintPath>
+    <Reference Include="System.Drawing.Common, Version=9.0.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\..\..\DotNet\StreamDeck\packages\System.Drawing.Common.9.0.2\lib\net462\System.Drawing.Common.dll</HintPath>
     </Reference>
     <Reference Include="System.IO.Compression" />
     <Reference Include="System.Management" />
@@ -101,7 +105,6 @@
     <Compile Include="Actions\SoundpadRecordPTTAction.cs" />
     <Compile Include="Actions\SoundpadRemoveAction.cs" />
     <Compile Include="Actions\SoundpadPauseToggleAction.cs" />
-    <Compile Include="Backend\UpdateHandler.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Properties\Settings.Designer.cs">
@@ -256,10 +259,11 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\soundpad-connector\src\SoundpadConnector\SoundpadConnector.csproj">
-      <Project>{481edf58-3949-4d89-ac22-dc072a6a84aa}</Project>
-      <Name>SoundpadConnector</Name>
+    <ProjectReference Include="..\..\..\DotNet\BRUtils\BRUtils.csproj">
+      <Project>{CEE6E699-DB1F-4034-9D20-25A8DDF154CD}</Project>
+      <Name>BRUtils</Name>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
