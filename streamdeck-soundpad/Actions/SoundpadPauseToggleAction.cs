@@ -31,6 +31,11 @@ namespace Soundpad.Actions
                 Connection.SetImageAsync(Properties.Settings.Default.SoundPadNotRunning);
                 return;
             }
+            else if (SoundpadManager.Instance.IsTrial)
+            {
+                Connection.SetImageAsync(Properties.Settings.Default.SoundPadTrial);
+                return;
+            }
 
             Connection.SetImageAsync((string)null);
         }

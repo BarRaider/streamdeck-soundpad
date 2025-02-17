@@ -28,6 +28,7 @@ namespace Soundpad
         private static readonly object dicCategoriesLock = new object();
         private static readonly object connectAttemptLock = new object();
         private bool isProbablyConnected = false;
+        private bool isTrial = false;
         private DateTime lastCacheSounds = DateTime.MinValue;
         private DateTime lastConnectAttempt = DateTime.MinValue;
 
@@ -78,6 +79,14 @@ namespace Soundpad
             }
         }
 
+        public bool IsTrial
+        {
+            get
+            {
+                return soundpad != null && isTrial;
+            }
+        }
+
         public void Connect()
         {
             Logger.Instance.LogMessage(TracingLevel.INFO, "Connect request received");
@@ -105,7 +114,7 @@ namespace Soundpad
                         }
                         Logger.Instance.LogMessage(TracingLevel.INFO, "Attempting to connect to Soundpad");
                         lastConnectAttempt = DateTime.Now;
-                        soundpad.ConnectAsync();
+                        _ = soundpad.ConnectAsync();
                     }
                 }
 
@@ -363,10 +372,23 @@ namespace Soundpad
             }
         }
 
-        public void TogglePause()
+        public async void TogglePause()
         {
             Logger.Instance.LogMessage(TracingLevel.INFO, $"TogglePause Called");
-            soundpad.TogglePause();
+            await soundpad.TogglePause();
+        }
+
+        public async Task<bool> CheckIsTrial()
+        {
+            try
+            {
+                return (await soundpad.IsTrial()).Value;
+            }
+            catch (Exception ex)
+            {
+                Logger.Instance.LogMessage(TracingLevel.ERROR, $"IsTrial Exception: {ex}");
+            }
+            return true;
         }
 
         #endregion
@@ -380,11 +402,12 @@ namespace Soundpad
             lastConnectAttempt = DateTime.MinValue;
         }
 
-        private void Soundpad_Connected(object sender, EventArgs e)
+        private async void Soundpad_Connected(object sender, EventArgs e)
         {
             isProbablyConnected = true;
             Logger.Instance.LogMessage(TracingLevel.INFO, "Connected to Soundpad");
-            _ = CacheAllSounds();
+            isTrial = await CheckIsTrial();
+            await CacheAllSounds();
         }
 
         #endregion

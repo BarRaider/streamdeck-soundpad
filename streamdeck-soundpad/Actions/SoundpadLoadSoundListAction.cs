@@ -97,6 +97,12 @@ namespace Soundpad.Actions
                 Connection.SetTitleAsync(null);
                 return;
             }
+            else if (SoundpadManager.Instance.IsTrial)
+            {
+                Connection.SetImageAsync(Properties.Settings.Default.SoundPadTrial);
+                Connection.SetTitleAsync(null);
+                return;
+            }
 
             Connection.SetImageAsync((string)null);
         }
