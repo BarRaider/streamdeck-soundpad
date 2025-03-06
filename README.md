@@ -4,6 +4,9 @@ Play sounds directly from Soundpad, without needing to configure hotkeys.
 
 **Author's website and contact information:** [https://barraider.com](https://barraider.com)
 
+# New in v1.8
+- Plugin will now indicate when connected to a Trial version of SoundPad
+
 # New in v1.7
 - Added support for categories 🔥
   - `Play Random Sound` can now be limited to a specific category
