@@ -111,7 +111,7 @@
   "Name": "Soundpad Integration",
   "Icon": "Images/pluginIcon",
   "URL": "https://BarRaider.com/",
-  "Version": "1.7.1",
+  "Version": "1.8",
   "CodePath": "com.barraider.soundpad",
   "Category": "Soundpad [BarRaider]",
   "CategoryIcon": "Images/categoryIcon",
